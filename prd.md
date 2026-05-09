@@ -2,7 +2,8 @@ This is the website containing all information regarding Forró events in Berlin
 
 **Product requiriments**:
 
-. Have a  calendar for classes, weekly socials, and upcoming events. This calendar should be rendered out of a json with that I will populate later in the repository.
+. H. Integrate with forro-app to show calendar for classes, weekly socials, and upcoming events. We act as an aggregator for some forro organizers based in Berlin. 
+
 
 . It should have a small little text in english about what is forro and an FAQ section.
 
@@ -46,4 +47,4 @@ This is the website containing all information regarding Forró events in Berlin
 **Ideas for the future**:
 . Make it pretty with some photo of people dancing using some historical TF photos
 . Contact the owner of forro.berlin to get the URL.
-. Integrate with filora to show calendar for classes, weekly socials, and upcoming events. We act as an aggregator for some forro organizers based in Berlin. 
+

@@ -1,14 +1,11 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import EventCard from '../components/EventCard.astro';
+import EventCarousel from '../components/EventCarousel.astro';
 import FAQItem from '../components/FAQItem.astro';
-import eventsData from '../data/events.json';
+import { getUpcomingBerlinEvents } from '../lib/fetchEvents';
 import faqData from '../data/faq.json';
 
-const today = new Date().toISOString().split('T')[0];
-const upcoming = eventsData.events
-  .filter(e => e.date >= today)
-  .sort((a, b) => a.date.localeCompare(b.date));
+const upcoming = await getUpcomingBerlinEvents();
 ---
 <BaseLayout
   title="Forró Berlin — Classes, Socials &amp; Events"
@@ -60,21 +57,7 @@ const upcoming = eventsData.events
     <div class="events-inner">
       <h2 class="section-title">Upcoming Events</h2>
       <p class="section-subtitle">Classes, socials, and festivals — updated regularly.</p>
-      <div class="events-grid">
-        {upcoming.map(event => (
-          <EventCard
-            title={event.title}
-            date={event.date}
-            time={event.time}
-            endTime={event.endTime}
-            venue={event.venue}
-            type={event.type as 'social' | 'class' | 'festival'}
-            description={event.description}
-            ticketUrl={event.ticketUrl}
-            infoUrl={event.infoUrl}
-          />
-        ))}
-      </div>
+      <EventCarousel events={upcoming} bgColor="fdf6ec" />
     </div>
   </section>
 

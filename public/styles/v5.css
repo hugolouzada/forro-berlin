@@ -254,6 +254,12 @@ body {
 }
 
 /* ── Event card (V1 shape · V4 colours & type) ────── */
+.event-card-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
 .event-card {
   background: var(--color-bg);
   border-radius: var(--radius-card);
@@ -268,6 +274,13 @@ body {
 .event-card--class  { border-left-color: var(--color-rule); }
 .event-card--festival { border-left-color: var(--color-muted); }
 
+.event-card-img {
+  display: block;
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+}
 .event-card-top { display: none; }
 .event-card-body { padding: 1.1rem 1.25rem 1.25rem; }
 
