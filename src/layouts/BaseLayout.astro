@@ -23,7 +23,7 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
     {fontUrl && <link rel="preconnect" href="https://fonts.googleapis.com" />}
     {fontUrl && <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />}
     {fontUrl && <link rel="stylesheet" href={fontUrl} />}
-    <link rel="stylesheet" href={`${import.meta.env.BASE_URL}${cssFile.replace(/^\//, '')}`} />
+    <link rel="stylesheet" href={`${import.meta.env.BASE_URL}${cssFile}`} />
     <style>
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
       html { scroll-behavior: smooth; }
