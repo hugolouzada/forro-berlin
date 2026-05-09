@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-  site: 'https://forro-berlin.de',
+  site: 'https://hugolouzada.github.io',
+  base: '/forro-berlin',
 });
