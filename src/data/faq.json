@@ -1,0 +1,24 @@
+{
+  "faq": [
+    {
+      "question": "What is Forró?",
+      "answer": "Forró is a family of partner dances from northeastern Brazil, danced to lively music featuring accordion, zabumba drum, and triangle. It's joyful, social, and easy to pick up — most people are dancing by the end of their first class."
+    },
+    {
+      "question": "Do I need a partner to come?",
+      "answer": "No partner needed! Forró is danced in a rotating partner format at socials, so you'll dance with many different people throughout the evening. Everyone is welcome to come alone."
+    },
+    {
+      "question": "I've never danced before. Can I come to a social?",
+      "answer": "Absolutely. Forró socials in Berlin are relaxed and welcoming. If you're brand new, we recommend a beginner class first — but you're always welcome to just show up and watch, then jump in when you feel ready."
+    },
+    {
+      "question": "What is the code of conduct?",
+      "answer": "Forró is a consent-based dance. Always ask before dancing, accept a 'no' graciously, and respect your partner's comfort. Our community is built on trust and inclusion — harassment of any kind is not tolerated."
+    },
+    {
+      "question": "Where can I find regular classes in Berlin?",
+      "answer": "Several organizers run weekly classes across the city. Check the Events section above for the current schedule. Classes are typically grouped by level: beginner, improver, and intermediate/advanced."
+    }
+  ]
+}

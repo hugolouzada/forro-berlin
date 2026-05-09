@@ -1,0 +1,135 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import EventCard from '../components/EventCard.astro';
+import FAQItem from '../components/FAQItem.astro';
+import eventsData from '../data/events.json';
+import faqData from '../data/faq.json';
+
+const today = new Date().toISOString().split('T')[0];
+const upcoming = eventsData.events
+  .filter(e => e.date >= today)
+  .sort((a, b) => a.date.localeCompare(b.date));
+
+const edition = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+---
+<BaseLayout
+  title="Forró Berlin — Classes, Socials &amp; Events"
+  description="Find forró classes, weekly socials, and upcoming events in Berlin. All levels welcome."
+  cssFile="/styles/v4.css"
+>
+  <header class="masthead">
+    <div class="masthead-tagline">
+      <span>Berlin · Germany</span>
+      <span>{edition}</span>
+      <span>Forró for Everyone</span>
+    </div>
+    <div class="masthead-title">THE FORRÓ POST</div>
+    <div class="masthead-sub">Berlin Edition &nbsp;·&nbsp; Classes &nbsp;·&nbsp; Socials &nbsp;·&nbsp; Events &nbsp;·&nbsp; All Levels Welcome</div>
+  </header>
+
+  <nav class="section-nav">
+    <a href="#what-is-forro">About Forró</a>
+    <a href="#events">Upcoming Events</a>
+    <a href="#faq">Questions &amp; Answers</a>
+    <a href="#links">Get Involved</a>
+  </nav>
+
+  <!-- Lead article: What is Forró, 3-column newspaper layout -->
+  <section class="lead-article" id="what-is-forro">
+    <div class="lead-col">
+      <span class="lead-kicker">Featured</span>
+      <h1 class="lead-headline lead-headline--italic">Forró comes to Berlin</h1>
+      <div class="illustration">🪗</div>
+      <div class="lead-body">
+        <p>Forró is a joyful partner dance from the interior of northeastern Brazil, danced to the irresistible sound of accordion, zabumba drum, and triangle. Rooted in the culture of the Sertão — the sun-scorched backcountry — it is music of the people, for the people.</p>
+        <p>It is deeply social, surprisingly easy to learn, and endlessly expressive. Most beginners are dancing within the first hour.</p>
+      </div>
+    </div>
+    <div class="lead-col-sep"></div>
+    <div class="lead-col">
+      <span class="lead-kicker">On the dance floor</span>
+      <h2 class="lead-headline">A dance without barriers</h2>
+      <div class="lead-body">
+        <p>No partner needed. No prior experience required. Berlin's forró community is one of the most welcoming in Europe — a small, warm, international crowd that meets weekly across the city.</p>
+        <blockquote class="lead-pullquote">"The village expands<br/>beyond the dance floor."</blockquote>
+        <p>Classes run throughout the week for beginners and improvers alike. Socials happen every Friday. Festivals bring teachers and dancers from across the continent.</p>
+      </div>
+    </div>
+    <div class="lead-col-sep"></div>
+    <div class="lead-col">
+      <span class="lead-kicker">Code of Conduct</span>
+      <h2 class="lead-headline">Care for the ground and community</h2>
+      <div class="illustration" style="font-size:2.5rem">🤝</div>
+      <div class="lead-body">
+        <p>Forró in Berlin is a consent-based dance. Always ask before dancing. Accept a no graciously. Hold the space with care.</p>
+        <p>Everyone contributes. Everyone belongs. Harassment of any kind is not tolerated.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Events -->
+  <section class="events-section" id="events">
+    <div class="events-header">
+      <span>Upcoming Events</span>
+      <span>Berlin · {new Date().getFullYear()}</span>
+    </div>
+    <div class="events-columns">
+      {upcoming.map(event => (
+        <EventCard
+          title={event.title}
+          date={event.date}
+          time={event.time}
+          endTime={event.endTime}
+          venue={event.venue}
+          type={event.type as 'social' | 'class' | 'festival'}
+          description={event.description}
+          ticketUrl={event.ticketUrl}
+          infoUrl={event.infoUrl}
+        />
+      ))}
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq-section" id="faq">
+    <div class="faq-header">
+      <span>Questions &amp; Answers</span>
+      <span>Everything you need to know</span>
+    </div>
+    <div class="faq-columns">
+      {faqData.faq.map(item => (
+        <FAQItem question={item.question} answer={item.answer} />
+      ))}
+    </div>
+  </section>
+
+  <!-- Links / Classifieds -->
+  <section class="links-section" id="links">
+    <div class="links-col">
+      <div class="links-col-head">New to Forró?</div>
+      <h3>First steps on the dance floor</h3>
+      <p>Start with a beginner class — no partner, no experience needed. You'll be dancing in an hour.</p>
+      <a href="#events" class="classified-btn">Find a Class</a>
+    </div>
+    <div class="links-col-sep"></div>
+    <div class="links-col">
+      <div class="links-col-head">Regular Dancer?</div>
+      <h3>The weekly calendar awaits</h3>
+      <p>Socials every Friday. Workshops with visiting teachers. Check the events column for dates and venues.</p>
+      <a href="#events" class="classified-btn">See All Events</a>
+    </div>
+    <div class="links-col-sep"></div>
+    <div class="links-col">
+      <div class="links-col-head">Got Tickets?</div>
+      <h3>Summer Festival 2026</h3>
+      <p>The Berlin Forró Summer Festival is coming. Two days of workshops, live music, and social dancing.</p>
+      <a href="#events" class="classified-btn">Get Tickets</a>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <span>The Forró Post · Berlin</span>
+    <span>&copy; {new Date().getFullYear()}</span>
+    <a href="/">← Back to design picker</a>
+  </footer>
+</BaseLayout>

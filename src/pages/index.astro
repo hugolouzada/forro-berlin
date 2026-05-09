@@ -1,0 +1,104 @@
+---
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Forró Berlin — Choose a Design</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, sans-serif;
+      background: #111;
+      color: #eee;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    h1 { font-size: 1.5rem; margin-bottom: 0.5rem; color: #fff; }
+    p { color: #888; margin-bottom: 2.5rem; font-size: 0.95rem; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.5rem;
+      width: 100%;
+      max-width: 900px;
+    }
+    a.card {
+      display: block;
+      border-radius: 12px;
+      overflow: hidden;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    a.card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.4); }
+    .swatch {
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: white;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+    .swatch-v1 { background: linear-gradient(135deg, #C0522A, #E9A820, #2D6A4F); font-family: Georgia, serif; font-style: italic; }
+    .swatch-v2 { background: #0F0F0F; border: 1px solid #333; font-family: 'Helvetica Neue', sans-serif; letter-spacing: 0.1em; text-transform: uppercase; }
+    .swatch-v2 span { color: #E8FF00; }
+    .swatch-v3 { background: #D42B2B; font-family: system-ui, sans-serif; }
+    .swatch-v4 { background: #F0E6CC; font-family: Georgia, serif; font-style: italic; color: #1C1209; text-shadow: none; border: 1px solid #3D2714; }
+    .swatch-v5 { background: #3D2714; font-family: Georgia, serif; font-style: italic; color: #F0E6CC; }
+    .info {
+      background: #1c1c1c;
+      padding: 1rem 1.25rem;
+    }
+    .info strong { display: block; color: #fff; margin-bottom: 0.25rem; }
+    .info span { font-size: 0.85rem; color: #666; }
+  </style>
+</head>
+<body>
+  <h1>Forró Berlin — Design Preview</h1>
+  <p>Click a version to preview it. Share your favourite with the team.</p>
+  <div class="grid">
+    <a href="/v1" class="card">
+      <div class="swatch swatch-v1">Forró Berlin</div>
+      <div class="info">
+        <strong>Version 1 — Tropical Wave</strong>
+        <span>Warm Brazilian · terracotta &amp; amber · serif fonts</span>
+      </div>
+    </a>
+    <a href="/v2" class="card">
+      <div class="swatch swatch-v2">FORRÓ <span>BERLIN</span></div>
+      <div class="info">
+        <strong>Version 2 — Berlin Underground</strong>
+        <span>Dark &amp; brutalist · electric yellow · bold type</span>
+      </div>
+    </a>
+    <a href="/v3" class="card">
+      <div class="swatch swatch-v3">Forró Berlin</div>
+      <div class="info">
+        <strong>Version 3 — Community Hub</strong>
+        <span>Warm red · friendly &amp; colourful · card-based</span>
+      </div>
+    </a>
+    <a href="/v4" class="card">
+      <div class="swatch swatch-v4">The Forró Post</div>
+      <div class="info">
+        <strong>Version 4 — The Sertão Post</strong>
+        <span>Aged paper · newspaper broadsheet · serif &amp; ink</span>
+      </div>
+    </a>
+    <a href="/v5" class="card">
+      <div class="swatch swatch-v5">Dance Forró<br/>in Berlin</div>
+      <div class="info">
+        <strong>Version 5 — Sertão Warm</strong>
+        <span>V4 type &amp; colours · V1 flow · mobile jump nav</span>
+      </div>
+    </a>
+  </div>
+</body>
+</html>

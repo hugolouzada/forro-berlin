@@ -1,0 +1,128 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import EventCard from '../components/EventCard.astro';
+import FAQItem from '../components/FAQItem.astro';
+import eventsData from '../data/events.json';
+import faqData from '../data/faq.json';
+
+const today = new Date().toISOString().split('T')[0];
+const upcoming = eventsData.events
+  .filter(e => e.date >= today)
+  .sort((a, b) => a.date.localeCompare(b.date));
+---
+<BaseLayout
+  title="Forró Berlin — Classes, Socials &amp; Events"
+  description="Find forró classes, weekly socials, and upcoming events in Berlin. All levels welcome."
+  cssFile="/styles/v5.css"
+>
+  <nav class="site-nav">
+    <a href="#" class="logo">Forró Berlin</a>
+    <ul>
+      <li><a href="#events">Events</a></li>
+      <li><a href="#what-is-forro">About</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+
+  <section class="hero">
+    <span class="hero-kicker">Berlin · Classes · Socials · Festivals</span>
+    <h1>Dance Forró<br/>in Berlin</h1>
+    <hr class="hero-rule" />
+    <p>Classes, weekly socials, and festivals — all in one place. Open to everyone.</p>
+    <a href="#events" class="cta-btn">See upcoming events</a>
+  </section>
+
+  <!-- Mobile jump nav — directs user flow to each section -->
+  <nav class="jump-nav" aria-label="Jump to section">
+    <div class="jump-nav-grid">
+      <a href="#events" class="jump-nav-item">
+        <span class="jump-nav-glyph">§</span>
+        <span class="jump-nav-label">This week</span>
+        <span class="jump-nav-desc">Socials &amp; classes</span>
+      </a>
+      <a href="#events" class="jump-nav-item">
+        <span class="jump-nav-glyph">✦</span>
+        <span class="jump-nav-label">Festivals</span>
+        <span class="jump-nav-desc">Tickets &amp; info</span>
+      </a>
+      <a href="#what-is-forro" class="jump-nav-item">
+        <span class="jump-nav-glyph">¶</span>
+        <span class="jump-nav-label">About Forró</span>
+        <span class="jump-nav-desc">What &amp; why</span>
+      </a>
+      <a href="#faq" class="jump-nav-item">
+        <span class="jump-nav-glyph">?</span>
+        <span class="jump-nav-label">FAQ</span>
+        <span class="jump-nav-desc">Common questions</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Events -->
+  <div class="section-bar" id="events">
+    <span>Upcoming Events</span>
+    <span>Berlin · {new Date().getFullYear()}</span>
+  </div>
+  <section class="events-section">
+    <div class="events-inner">
+      <p class="section-subtitle">Classes, socials, and festivals — updated regularly.</p>
+      <div class="events-grid">
+        {upcoming.map(event => (
+          <EventCard
+            title={event.title}
+            date={event.date}
+            time={event.time}
+            endTime={event.endTime}
+            venue={event.venue}
+            type={event.type as 'social' | 'class' | 'festival'}
+            description={event.description}
+            ticketUrl={event.ticketUrl}
+            infoUrl={event.infoUrl}
+          />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- What is Forró -->
+  <div class="section-bar" id="what-is-forro">
+    <span>About Forró</span>
+    <span>The dance · The music · The community</span>
+  </div>
+  <section class="what-is-forro">
+    <div class="what-is-forro-inner">
+      <span class="kicker">From the Sertão to Berlin</span>
+      <h2 class="section-title">What is Forró?</h2>
+      <p>
+        Forró is a joyful partner dance from northeastern Brazil, danced to the irresistible rhythms of
+        accordion, zabumba drum, and triangle. Rooted in the culture of the Sertão — the sun-scorched
+        backcountry — it carries the warmth and openness of its people wherever it goes.
+      </p>
+      <blockquote class="pullquote">
+        "Deeply social, surprisingly easy to learn,<br/>and endlessly fun to dance."
+      </blockquote>
+      <p>
+        Whether you've never danced before or you're a seasoned mover, Berlin's forró community
+        welcomes you with open arms. No partner needed. No experience required. Show up, dance, repeat.
+      </p>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <div class="section-bar" id="faq">
+    <span>Questions &amp; Answers</span>
+    <span>Everything you need to know</span>
+  </div>
+  <section class="faq-section">
+    <div class="faq-inner">
+      {faqData.faq.map(item => (
+        <FAQItem question={item.question} answer={item.answer} />
+      ))}
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <span>Forró Berlin · {new Date().getFullYear()}</span>
+    <a href="/">← Back to design picker</a>
+  </footer>
+</BaseLayout>
