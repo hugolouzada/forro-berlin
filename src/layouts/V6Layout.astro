@@ -1,0 +1,103 @@
+---
+import { ClientRouter } from 'astro:transitions';
+
+interface Props {
+  title: string;
+  description: string;
+  ink?: boolean;
+  home?: boolean;
+  /** Page-specific JSON-LD. Merged in alongside the site-wide Organization
+   *  node so each page can declare what it actually is (FAQPage, Event…). */
+  schema?: Record<string, unknown> | Record<string, unknown>[];
+  /** Override the social share image (path relative to the site root). */
+  ogImage?: string;
+}
+const { title, description, ink = false, home = false, schema, ogImage } = Astro.props;
+
+const bodyClass = ['v6', ink && 'v6--ink', home && 'v6--home'].filter(Boolean).join(' ');
+// Normalise to a trailing slash so the canonical always matches the sitemap
+// entry. Without this the homepage self-references /forro-berlin while the
+// sitemap lists /forro-berlin/, which reads as two URLs for one page.
+const canonicalPath = Astro.url.pathname.replace(/\/?$/, '/');
+const canonicalUrl = new URL(canonicalPath, Astro.site);
+const base = import.meta.env.BASE_URL;
+
+const SITE_NAME = 'Tome Forró Berlin';
+const ogImageUrl = new URL(ogImage ?? `${base}/images/v6/og-cover.webp`, Astro.site);
+
+// Site-wide identity. Declaring the nonprofit once, with its area served and
+// the dance it teaches, is what lets "forró berlin" style queries resolve to
+// us rather than to a generic aggregator.
+const organization = {
+  '@context': 'https://schema.org',
+  '@type': 'NGO',
+  '@id': new URL(`${base}/#organization`, Astro.site).href,
+  name: 'Tome Forró Berlin e.V.',
+  alternateName: 'Tome Forró Berlin',
+  url: new URL(`${base}/`, Astro.site).href,
+  logo: new URL(`${base}/images/v6/logo.webp`, Astro.site).href,
+  image: ogImageUrl.href,
+  description:
+    'A nonprofit forró community in Berlin running classes, socials, and events. ' +
+    'Forró is a partner dance from northeastern Brazil. All levels welcome, no partner needed.',
+  email: 'tomeforroberlin@gmail.com',
+  areaServed: { '@type': 'City', name: 'Berlin', address: { '@type': 'PostalAddress', addressLocality: 'Berlin', addressCountry: 'DE' } },
+  location: {
+    '@type': 'Place',
+    name: 'Berlin',
+    address: { '@type': 'PostalAddress', addressLocality: 'Berlin', addressCountry: 'DE' },
+  },
+  knowsAbout: ['Forró', 'Brazilian partner dance', 'Forró pé-de-serra', 'Social dancing'],
+};
+
+const graph = [organization, ...(schema ? (Array.isArray(schema) ? schema : [schema]) : [])];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+
+    {/* Open Graph — without an image, every share renders as a blank card. */}
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_GB" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Dancers at a Tome Forró Berlin event" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <meta name="theme-color" content={ink ? '#121212' : '#FFFFFF'} />
+    <link rel="icon" href={`${base}/images/v6/logo.webp`} type="image/webp" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    />
+    <link rel="stylesheet" href={`${base}/styles/v6.css`} />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    </style>
+    <ClientRouter />
+
+    <script type="application/ld+json" set:html={JSON.stringify(graph)} />
+  </head>
+  <body class={bodyClass}>
+    <slot />
+  </body>
+</html>

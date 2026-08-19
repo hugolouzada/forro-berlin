@@ -1,0 +1,65 @@
+---
+import V6Layout from '../layouts/V6Layout.astro';
+import Panel from '../components/v6/Panel.astro';
+import FAQItem from '../components/FAQItem.astro';
+import faqData from '../data/faq.json';
+
+const base = import.meta.env.BASE_URL;
+
+// FAQPage markup is what makes these questions eligible for expandable
+// answers directly in Google results — the highest-value structured data
+// on the site, and it comes free from data we already have.
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqData.faq.map(item => ({
+    '@type': 'Question',
+    name: item.question,
+    acceptedAnswer: { '@type': 'Answer', text: item.answer },
+  })),
+};
+---
+<V6Layout
+  ink
+  schema={schema}
+  title="Forró Dance Etiquette FAQ — Tome Forró Berlin"
+  description="How to behave on and around the forró dance floor in Berlin: hygiene, the embrace, asking and declining a dance, what to wear, floor craft, feedback, and dance roles."
+>
+  <Panel
+    id="faq"
+    label="Dance etiquette"
+    title="FAQ &amp; Conduct"
+    lede="Forró is danced in a close embrace. These habits make you a partner people come back to."
+  >
+    <div class="panel__body">
+      <p>
+        Most of this is common courtesy, and you likely know it already. Read it as a reminder.
+        The rules apply at every level.
+      </p>
+    </div>
+
+    <hr class="panel__rule" />
+
+    {faqData.faq.map(item => (
+      <FAQItem question={item.question} answer={item.answer} />
+    ))}
+
+    <hr class="panel__rule" />
+
+    <div class="panel__body">
+      <h2 class="panel__lede">Code of conduct</h2>
+      <p>
+        Forró runs on consent. Ask before you dance. Accept a no without pressing. Respect your
+        partner's limits and the space around you.
+      </p>
+      <p>
+        We do not tolerate harassment. Everyone belongs here, whatever their level.
+      </p>
+
+      <div class="btn-row">
+        <a href={`${base}/calendar`} class="btn">Find a class</a>
+        <a href={`${base}/about`} class="btn">What is Forró?</a>
+      </div>
+    </div>
+  </Panel>
+</V6Layout>

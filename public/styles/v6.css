@@ -1,0 +1,924 @@
+/* ═══════════════════════════════════════════════════════════════
+   Forró Berlin — v6
+   Two hues, one viewport, cards that expand.
+   Palette rationale in .design/DESIGN_LANGUAGE.md
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Base — carries ~95% of the surface. Pure white ground: the logo is
+     black-on-white and needs no border to separate from it. */
+  --ink:          #121212;
+  --ink-soft:     #1E1B19;
+  --paper:        #FFFFFF;
+  --paper-raised: #FFFFFF;
+  --dust:         #E5E3E0;  /* neutral, not warm — reads clean on pure white */
+  --muted:        #6E6862;
+
+  /* Accent — under 5% of pixels, deliberately.
+     --ember is 4.2:1 on both paper and ink: enough for shapes and borders,
+     NOT enough for text. Text uses --accent-text, which flips per surface:
+     ember-deep on paper (6.6:1), ember-light on ink (5.3:1). Both pass AA.
+     Rule: --ember may be a shape, --accent-text may be a sentence. */
+  --ember:       #C7502A;
+  --ember-deep:  #99381C;
+  --ember-light: #D9663C;
+  --accent-text: var(--ember-deep);
+
+  /* Second hue — a deliberate, contained exception to the two-hue rule,
+     used ONLY to distinguish an "event" from a "class" on calendar rows.
+     Same shape/sentence split as ember: --teal for borders, the deep and
+     light variants for text on white and on ink respectively. */
+  --teal:        #2E7C8A;
+  --teal-deep:   #1F5F6B;  /* 7.3:1 on white */
+  --teal-light:  #3E93A3;  /* 5.3:1 on ink   */
+  --teal-text:   var(--teal-deep);
+
+  /* Inverted equivalents, for panels on ink */
+  --dust-ink:  #332F2B;
+  --muted-ink: #A9A29A;
+
+  /* One font, site-wide. Two variable names kept so call sites don't need
+     touching; both resolve to the same stack — hierarchy comes from weight
+     and size, not from mixing families. */
+  --font-display: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-body:    'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Exactly three font sizes, site-wide. Hierarchy comes from weight
+     and colour, not from a bigger and bigger ladder of sizes. */
+  --fs-sm:   clamp(0.78rem, 0.75rem + 0.12vw, 0.85rem);  /* meta, labels, buttons */
+  --fs-base: clamp(0.95rem, 0.92rem + 0.18vw, 1.05rem);  /* body copy */
+  --fs-lg:   clamp(1.25rem, 1.05rem + 1vw, 1.75rem);     /* every heading, everywhere */
+
+  --bar-h:  56px;
+  --foot-h: 48px;
+  --gap:    12px;
+  --pad:    clamp(1rem, 0.6rem + 1.4vw, 2rem);
+}
+
+/* ── Reset / shell ─────────────────────────────────────────── */
+
+body.v6 {
+  font-family: var(--font-body);
+  font-size: var(--fs-base);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+body.v6--ink {
+  background: var(--ink);
+  color: var(--paper);
+  --accent-text: var(--ember-light);
+  --teal-text: var(--teal-light);
+}
+
+.v6 ::selection { background: var(--ember); color: #fff; }
+
+.v6 :focus-visible {
+  outline: 2px solid var(--ember);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.v6--ink :focus-visible { outline-color: var(--ember); }
+
+/* ── Top bar ───────────────────────────────────────────────── */
+
+.bar {
+  height: var(--bar-h);
+  padding-inline: var(--pad);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--dust);
+}
+
+.v6--ink .bar { border-bottom-color: var(--dust-ink); }
+
+.bar-meta {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  font-size: var(--fs-sm);
+  color: var(--muted);
+}
+
+.v6--ink .bar-meta { color: var(--muted-ink); }
+
+.bar-meta a { color: inherit; text-decoration: none; }
+.bar-meta a:hover { color: var(--accent-text); }
+
+/* Back control on panels */
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: var(--fs-sm);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--muted-ink);
+  transition: color 0.15s;
+}
+
+.back:hover { color: var(--paper); }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ── Homepage top bar ──────────────────────────────────────────
+   Three zones: name, radio, logo. No links — the cards navigate.
+   The logo needs no border or plate: it is black-on-white artwork
+   sitting on a pure-white page, so it separates on its own. */
+
+.topbar {
+  height: var(--bar-h);
+  flex: none;
+  padding-inline: var(--pad);
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1rem;
+}
+
+.topbar__name {
+  font-size: var(--fs-base);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.topbar__logo {
+  justify-self: end;
+  display: block;
+  height: calc(var(--bar-h) - 18px);
+  width: auto;
+  mix-blend-mode: multiply; /* drops the JPEG's white box on a white page */
+}
+
+/* ── Radio widget (placeholder) ────────────────────────────── */
+
+.radio {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.3rem 0.75rem 0.3rem 0.35rem;
+  border: 1px solid var(--dust);
+  border-radius: 999px;
+}
+
+.radio__play,
+.radio__mute {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  flex: none;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--ember);
+  color: #fff;
+  font-size: var(--fs-sm);
+  line-height: 1;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.radio__mute {
+  background: transparent;
+  color: var(--muted);
+  font-size: var(--fs-sm);
+}
+
+.radio__play[disabled],
+.radio__mute[disabled] { cursor: not-allowed; opacity: 0.55; }
+
+.radio__meta {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.radio__station { font-size: var(--fs-sm); font-weight: 500; white-space: nowrap; }
+.radio__status  { font-size: var(--fs-sm); color: var(--muted); transform: scale(0.85); transform-origin: left center; }
+
+/* ── The card grid ─────────────────────────────────────────────
+   No top bar — the cards are the navigation. Five tiles, all the
+   same height; one (FAQ) is twice the width of the rest. Same
+   --gap between tiles and at the page edge, so the whole thing
+   reads as one consistent rhythm — roughly even, not identical. */
+
+/* All five cards are the same 1×1 footprint — no spans, no explicit
+   placement, just auto-flow across 3 columns. Five cards in six cells
+   leaves the last cell empty, which reads as breathing room next to
+   the footer rather than a broken row. */
+.grid {
+  display: grid;
+  gap: var(--gap);
+  padding: var(--gap);
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+}
+
+/* Desktop: the page is exactly one viewport, never more. The body is a
+   flex column pinned to 100dvh and the grid takes whatever is left after
+   the footer — so the cards shrink to fit rather than the page growing a
+   scrollbar. Replaces a hand-computed `calc(100dvh - footer)` plus a
+   460px floor, either of which could overflow if the footer wrapped or
+   the viewport was short. */
+@media (min-width: 901px) {
+  body.v6--home {
+    height: 100dvh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  body.v6--home .grid { flex: 1; min-height: 0; }
+  body.v6--home .foot { flex: none; }
+}
+
+/* ── Tile ──────────────────────────────────────────────────── */
+
+/* justify-content: flex-start — title anchors to the top padding on every
+   card, full stop. Anchoring to the bottom instead (flex-end) was the
+   actual cause of the repeated "misaligned" reports: each card's intro
+   paragraph is a different length, so its wrapped height differed, and
+   bottom-anchoring the title+intro block as one unit meant the title's
+   own position shifted with it. Top-anchoring removes that dependency —
+   every title starts at the exact same offset regardless of what's below. */
+.tile {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  /* grid items default to min-height:auto, which refuses to shrink below
+     their content — that alone would force the grid past one viewport. */
+  min-height: 0;
+  gap: 0.4rem;
+  padding: clamp(0.9rem, 0.6rem + 0.8vw, 1.6rem);
+  border: 1px solid var(--dust);
+  border-radius: 10px;
+  background: var(--paper-raised);
+  color: var(--ink);
+  text-decoration: none;
+  transition: border-color 0.25s, transform 0.25s;
+}
+
+/* Photo sits behind everything, dimmed. Only this layer ever blurs. */
+.tile__photo {
+  position: absolute;
+  inset: -6%;
+  z-index: -1;
+  background-image: var(--tile-img);
+  background-size: cover;
+  background-position: center;
+  opacity: 0.35;
+  transition: opacity 0.35s, filter 0.35s, transform 0.5s;
+}
+
+/* Scrim keeps type legible over any photo — title sits at the top now,
+   so the scrim is darkest at the top and fades toward the bottom. */
+.tile__photo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.96) 12%, rgba(255, 255, 255, 0.55) 60%, rgba(255, 255, 255, 0.2) 100%);
+  transition: background 0.35s;
+}
+
+.tile__title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--fs-lg);
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+}
+
+.tile__intro {
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  color: var(--muted);
+  max-width: 42ch;
+}
+
+.tile__cue {
+  position: absolute;
+  top: clamp(0.9rem, 0.6rem + 0.8vw, 1.6rem);
+  right: clamp(0.9rem, 0.6rem + 0.8vw, 1.6rem);
+  font-size: var(--fs-base);
+  line-height: 1;
+  color: var(--accent-text);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.25s, transform 0.25s;
+}
+
+.tile__head,
+.tile__foot { display: flex; flex-direction: column; gap: 0.4rem; }
+
+/* ── Next Event card ───────────────────────────────────────────
+   The one card that deliberately breaks the shared tile pattern:
+   solid accent ground, photo band at FULL opacity (never dimmed,
+   never blurred), and text visible at rest rather than on hover. */
+
+.tile--next {
+  padding: 0;
+  border-color: var(--ember);
+  background: var(--ember);
+  color: #fff;
+  justify-content: flex-end;   /* banner pinned to the bottom edge */
+}
+
+/* Photo fills the whole card; the banner sits over its bottom edge, so the
+   image is only lightly covered at rest. */
+.tile--next .tile__photoband {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: var(--tile-img);
+  background-size: cover;
+  background-position: center;
+}
+
+/* Full-card accent panel, parked below the fold of the card. On hover it
+   slides up so the banner appears to grow and cover the photo. */
+.tile--next .tile__cover {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: var(--ember);
+  transform: translateY(100%);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tile--next .tile__nextbody {
+  position: relative;
+  z-index: 2;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.5rem 0.8rem 0.6rem;
+  background: var(--ember);
+}
+
+.tile--next .tile__label {
+  font-size: var(--fs-sm);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.85;
+  line-height: 1.3;
+}
+
+/* Base size, not --fs-lg: this is a compact banner strip, and the large
+   heading size was what made it eat the photo. Still within the 3-size scale. */
+.tile--next .tile__title {
+  color: #fff;
+  font-size: var(--fs-base);
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tile--next .tile__meta {
+  font-size: var(--fs-sm);
+  line-height: 1.35;
+  opacity: 0.9;
+}
+
+/* grid-template-rows 0fr→1fr animates an auto height cleanly, so the
+   detail lines expand the banner instead of popping. Default is OPEN —
+   the collapsed state lives in the hover query below, so touch devices
+   (which never hover) get the full detail at rest. */
+.tile--next .tile__reveal {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tile--next .tile__reveal > * { overflow: hidden; }
+
+/* Empty state fills the card with the accent — no photo, no cover. */
+.tile--next.is-empty { justify-content: center; }
+.tile--next.is-empty .tile__nextbody { flex: 1; justify-content: center; background: none; }
+.tile--next.is-empty .tile__title { -webkit-line-clamp: none; font-size: var(--fs-lg); }
+
+/* ── Level 2: hover / focus. Pointer devices only. Every card behaves
+   the same way — nothing is pre-expanded or exempt from the gate.
+   On touch the intro is simply always visible — a hover-gated
+   affordance is invisible to most of this audience.            */
+
+@media (hover: hover) and (pointer: fine) {
+  .tile__intro {
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.3s, transform 0.3s;
+  }
+
+  .tile:hover,
+  .tile:focus-visible { border-color: var(--ember); }
+
+  /* Next Event: compact strip at rest, then the accent panel rides up over
+     the photo and the detail lines expand the banner with it. */
+  .tile--next .tile__reveal { grid-template-rows: 0fr; }
+
+  .tile--next:hover .tile__cover,
+  .tile--next:focus-visible .tile__cover { transform: translateY(0); }
+
+  .tile--next:hover .tile__reveal,
+  .tile--next:focus-visible .tile__reveal { grid-template-rows: 1fr; }
+
+  .tile:hover .tile__intro,
+  .tile:focus-visible .tile__intro {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Blur the photo. Never the type. */
+  .tile:hover .tile__photo,
+  .tile:focus-visible .tile__photo {
+    opacity: 0.5;
+    filter: blur(12px);
+    transform: scale(1.06);
+  }
+
+  /* A little of the accent, on hover only — a warm ember wash behind the
+     title, fading into the usual paper scrim lower down. Rest state stays
+     neutral; the accent only shows up as something you find. */
+  .tile:hover .tile__photo::after,
+  .tile:focus-visible .tile__photo::after {
+    background: linear-gradient(to bottom, rgba(199, 80, 42, 0.24) 0%, rgba(255, 255, 255, 0.86) 55%, rgba(255, 255, 255, 0.78) 100%);
+  }
+
+  .tile:hover .tile__cue,
+  .tile:focus-visible .tile__cue { opacity: 1; transform: none; }
+}
+
+/* ── Footer ────────────────────────────────────────────────── */
+
+.foot {
+  height: var(--foot-h);
+  padding-inline: var(--pad);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--dust);
+  font-size: var(--fs-sm);
+  color: var(--muted);
+}
+
+.v6--ink .foot { border-top-color: var(--dust-ink); color: var(--muted-ink); }
+
+.foot nav { display: flex; gap: 1.25rem; }
+.foot a { color: inherit; text-decoration: none; }
+.foot a:hover { color: var(--accent-text); }
+
+/* ── Panel (expanded card, on ink) ─────────────────────────── */
+
+.panel {
+  min-height: calc(100dvh - var(--bar-h) - var(--foot-h));
+  padding: clamp(2rem, 1rem + 5vw, 5rem) var(--pad) 4rem;
+}
+
+.panel__inner { max-width: 68rem; margin-inline: auto; }
+
+.panel__label {
+  font-size: var(--fs-sm);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted-ink);
+  display: block;
+  margin-bottom: 0.9rem;
+}
+
+.panel__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--fs-lg);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  max-width: 18ch;
+}
+
+.panel__lede {
+  margin-top: 1.5rem;
+  font-size: var(--fs-base);
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--paper);
+  max-width: 34ch;
+}
+
+.panel__rule {
+  height: 1px;
+  border: 0;
+  background: var(--dust-ink);
+  margin: clamp(2rem, 1rem + 3vw, 3.5rem) 0;
+}
+
+.panel__body { max-width: 62ch; }
+.panel__body p { color: var(--muted-ink); }
+.panel__body p + p { margin-top: 1.1rem; }
+/* :not(.btn) — this rule is (0,1,1) and was beating .btn's (0,1,0), so
+   every button inside a panel body rendered ember-on-ember instead of
+   white-on-ember. Inline links keep the accent; buttons keep their own. */
+.panel__body a:not(.btn) { color: var(--accent-text); }
+
+.panel__body strong { color: var(--paper); font-weight: 500; }
+
+.pullquote {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: var(--fs-lg);
+  line-height: 1.3;
+  color: var(--paper);
+  border-left: 2px solid var(--ember);
+  padding-left: 1.5rem;
+  margin: 2rem 0;
+}
+
+/* Two-column prose on wide panels */
+.panel__cols {
+  display: grid;
+  gap: clamp(1.5rem, 1rem + 3vw, 4rem);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  max-width: none;
+}
+
+/* ── Event list on the events panel ────────────────────────── */
+
+/* The list itself is the grid; each row is a subgrid spanning it, so the
+   three columns are measured ONCE across every row and line up on a single
+   vertical edge.
+
+   Previously each .evt was its own independent grid, so column widths were
+   computed per row and the titles stepped in and out with the length of
+   that row's date. /classes only looked correct by luck: its shorter
+   strings ("Mon 14 Sept · 20:30") all fell under the old 9.5rem minimum,
+   so every row clamped to the same floor. /events adds the end time,
+   pushing past that floor and exposing the real bug. Same markup, same
+   CSS, both fixed by measuring at the list level. */
+.evt-list {
+  display: grid;
+  grid-template-columns: max-content 1fr max-content max-content;
+  column-gap: 1.5rem;
+}
+
+.evt {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(9.5rem, auto) 1fr auto auto; /* fallback, pre-subgrid */
+  grid-template-columns: subgrid;
+  align-items: baseline;
+  padding: 1.1rem 0;
+  border-top: 1px solid var(--dust-ink);
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.2s;
+}
+
+.evt:last-child { border-bottom: 1px solid var(--dust-ink); }
+.evt:hover { background: var(--ink-soft); }
+
+/* `.evt { display: grid }` outranks the [hidden] UA rule, so filtered-out
+   rows would stay visible without this. */
+.evt[hidden] { display: none; }
+
+/* ── Filter pills (Classes & Events page) ──────────────────── */
+
+.filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.75rem;
+}
+
+.filter__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--dust-ink);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted-ink);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.filter__btn:hover { color: var(--paper); border-color: var(--paper); }
+
+/* Active pill carries its own category colour, so the filter row doubles
+   as the legend — no separate key needed. */
+.filter__btn[aria-pressed='true'] { color: #fff; }
+
+.filter__btn[data-filter='all'][aria-pressed='true'] {
+  background: var(--ink-soft);
+  border-color: var(--muted-ink);
+}
+
+.filter__btn[data-filter='class'][aria-pressed='true'] {
+  background: var(--muted);
+  border-color: var(--muted);
+}
+
+.filter__btn[data-filter='event'][aria-pressed='true'] {
+  background: var(--teal);
+  border-color: var(--teal);
+}
+
+.filter__count { color: inherit; opacity: 0.7; font-variant-numeric: tabular-nums; }
+
+.filter-empty {
+  padding: 1.5rem 0;
+  color: var(--muted-ink);
+  font-size: var(--fs-sm);
+}
+
+/* ── Month grouping (Festival Calendar) ────────────────────── */
+
+.cal-month + .cal-month { margin-top: 2.5rem; }
+
+.cal-month__name {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+  margin-bottom: 0.5rem;
+}
+
+/* ── Link list (Our Events index) ──────────────────────────── */
+
+.linklist { list-style: none; }
+
+.linklist__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 1rem;
+  padding: 1.1rem 0;
+  border-top: 1px solid var(--dust-ink);
+}
+
+.linklist__item:last-child { border-bottom: 1px solid var(--dust-ink); }
+
+.linklist__item > a {
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  color: var(--paper);
+  text-decoration: none;
+}
+
+.linklist__item > a:hover { color: var(--accent-text); }
+
+.linklist__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: var(--fs-sm);
+  color: var(--muted-ink);
+}
+
+/* ── Fact list (single event page) ─────────────────────────── */
+
+.factlist { display: flex; flex-direction: column; }
+
+.factlist__row {
+  display: grid;
+  grid-template-columns: 7rem 1fr;
+  gap: 1rem;
+  padding: 0.7rem 0;
+  border-top: 1px solid var(--dust-ink);
+}
+
+.factlist__row:last-child { border-bottom: 1px solid var(--dust-ink); }
+
+.factlist dt {
+  font-size: var(--fs-sm);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted-ink);
+}
+
+.factlist dd { color: var(--paper); }
+.factlist dd a { color: var(--accent-text); }
+
+/* ── Imprint ───────────────────────────────────────────────── */
+
+.legal-heading {
+  font-size: var(--fs-base);
+  font-weight: 600;
+  color: var(--paper);
+  margin: 1.75rem 0 0.5rem;
+}
+
+.factnote {
+  font-size: var(--fs-sm);
+  color: var(--muted-ink);
+  margin-top: 1rem;
+}
+
+.evt__when {
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-sm);
+  color: var(--muted-ink);
+  white-space: nowrap;
+}
+
+.evt__title {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.evt__where {
+  display: block;
+  font-size: var(--fs-sm);
+  color: var(--muted-ink);
+  margin-top: 0.2rem;
+}
+
+/* ── Row tags ──────────────────────────────────────────────────
+   Two independent marks per row:
+     type      (filterable) — class = neutral, event = teal
+     organizer (not filterable) — our own events get a solid ember
+                badge, deliberately the loudest thing on the row.
+   Differentiation is by fill as much as hue, so the hierarchy still
+   survives greyscale. */
+
+.evt__price {
+  font-size: var(--fs-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--paper);
+  white-space: nowrap;
+}
+
+.evt__tags {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.55rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: var(--fs-sm);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  line-height: 1.5;
+}
+
+.tag--class { color: var(--muted-ink); }
+.tag--event { color: var(--teal-text); }
+
+/* Solid fill, not an outline — this is the one that must catch the eye. */
+.tag--ours {
+  background: var(--ember);
+  border-color: var(--ember);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Our own rows get a subtle accent edge so the row reads as ours
+   even before you reach the badge. */
+.evt--ours { box-shadow: inset 3px 0 0 var(--ember); padding-left: 0.85rem; }
+
+/* ── FAQ ───────────────────────────────────────────────────── */
+
+.faq-item {
+  border-top: 1px solid var(--dust-ink);
+  padding: 0.25rem 0;
+}
+
+.faq-item:last-of-type { border-bottom: 1px solid var(--dust-ink); }
+
+.faq-item summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 1.1rem 2rem 1.1rem 0;
+  position: relative;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--fs-lg);
+  line-height: 1.25;
+  transition: color 0.15s;
+}
+
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary:hover { color: var(--accent-text); }
+
+.faq-item summary::after {
+  content: '+';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  translate: 0 -50%;
+  font-family: var(--font-body);
+  font-size: var(--fs-base);
+  color: var(--muted-ink);
+  transition: rotate 0.2s;
+}
+
+.faq-item[open] summary::after { rotate: 45deg; }
+
+.faq-answer {
+  padding: 0 2rem 1.4rem 0;
+  color: var(--muted-ink);
+  max-width: 62ch;
+}
+
+/* ── Buttons ───────────────────────────────────────────────── */
+
+/* One button, one look: accent background, white text, always — no
+   ghost/outline variant. Hover just deepens the same accent rather than
+   swapping to a different colour scheme. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.8rem 1.5rem;
+  border: 1px solid var(--ember);
+  border-radius: 999px;
+  background: var(--ember);
+  color: #fff;
+  font-size: var(--fs-sm);
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.btn:hover { background: var(--ember-deep); border-color: var(--ember-deep); }
+
+.btn-row { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem; }
+
+/* ── Mobile ────────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: auto;
+  }
+  .tile { min-height: 26dvh; }
+  .brand-mark { width: 40px; }
+}
+
+@media (max-width: 600px) {
+  .grid { grid-template-columns: 1fr; }
+  .tile { min-height: 22dvh; }
+  /* Collapse the three columns to one; rows stay subgrid so they still
+     inherit a single shared column definition. */
+  .evt-list { grid-template-columns: 1fr; }
+  .evt { row-gap: 0.35rem; }
+  .evt__when { display: block; }
+  .evt__tags { justify-content: flex-start; }
+  .factlist__row { grid-template-columns: 1fr; gap: 0.15rem; }
+  .foot { height: auto; padding-block: 1rem; }
+}
+
+/* ── View transitions ──────────────────────────────────────── */
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.35s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+  .v6 *, .v6 *::before, .v6 *::after {
+    transition-duration: 0.001ms !important;
+  }
+}

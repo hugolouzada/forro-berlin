@@ -1,0 +1,25 @@
+{
+  "_comment": "PLACEHOLDER DATA — typesetting only. These rows are injected into the Class & Event Calendar so the 'event' and 'Tome Forró' tag treatments are visible while the live feed has no matching entries. DELETE THIS FILE (and its import in src/pages/v6/calendar.astro) BEFORE THE SITE GOES PUBLIC.",
+  "events": [
+    {
+      "date": "2026-09-12",
+      "time": "20:00",
+      "endTime": "01:00",
+      "title": "Forró da Lua — DJ Ivan Lanús live",
+      "venue": "Prachtsaal, Neukölln",
+      "kind": "event",
+      "ours": true,
+      "slug": "forro-da-lua",
+      "image": "forro-da-lua.webp"
+    },
+    {
+      "date": "2026-09-26",
+      "time": "19:30",
+      "endTime": "23:00",
+      "title": "Forró do Chamego — visiting teachers night",
+      "venue": "Kreuzberg",
+      "kind": "event",
+      "ours": false
+    }
+  ]
+}

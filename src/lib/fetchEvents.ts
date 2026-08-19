@@ -1,3 +1,7 @@
+/** Organizer UUID for Tome Forró Berlin e.V. in the dance-events feed.
+ *  Lets us mark our own events without hand-curating a list. */
+export const TOME_FORRO_HOST_ID = 'b1929a66-8b9c-411f-abd5-bcf99acae4f5';
+
 export interface ForroEvent {
   uuid: string;
   title: string;
@@ -9,6 +13,8 @@ export interface ForroEvent {
   description: string;
   pictureUrl?: string;
   detailUrl: string;
+  hostId?: string;
+  hostName?: string;
 }
 
 function mapType(tags: string[]): 'social' | 'class' | 'festival' {
@@ -55,6 +61,8 @@ export async function getUpcomingBerlinEvents(): Promise<ForroEvent[]> {
       description: e.short_description || '',
       pictureUrl: e.event_picture_link ?? undefined,
       detailUrl: `https://service.dance-events-app.com/plugin/event/${e.uuid}`,
+      hostId: e.host ?? undefined,
+      hostName: e.host_details?.username ?? undefined,
     };
   });
 }

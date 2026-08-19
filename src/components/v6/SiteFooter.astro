@@ -1,0 +1,11 @@
+---
+// Shared by the homepage and every panel page.
+const base = import.meta.env.BASE_URL;
+---
+<footer class="foot">
+  <span>Tome Forró Berlin e.V. · {new Date().getFullYear()}</span>
+  <nav>
+    <a href="mailto:tomeforroberlin@gmail.com">Contact</a>
+    <a href={`${base}/imprint`}>Imprint</a>
+  </nav>
+</footer>

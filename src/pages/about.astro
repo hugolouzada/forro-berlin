@@ -1,0 +1,50 @@
+---
+import V6Layout from '../layouts/V6Layout.astro';
+import Panel from '../components/v6/Panel.astro';
+
+const base = import.meta.env.BASE_URL;
+---
+<V6Layout
+  ink
+  title="What is Forró? — Tome Forró Berlin"
+  description="Forró is a partner dance from northeastern Brazil, danced to accordion, zabumba drum, and triangle. You need no partner and no experience to start."
+>
+  <Panel
+    id="about"
+    label="From the Sertão to Berlin"
+    title="What is Forró?"
+    lede="A partner dance from northeastern Brazil. You can learn the base step in one class."
+  >
+    <div class="panel__body">
+      <p>
+        Forró is a partner dance from northeastern Brazil. Three instruments carry the music:
+        accordion, zabumba drum, and triangle. The dance comes from the Sertão, the dry backcountry
+        of the northeast.
+      </p>
+
+      <p>
+        Dancers hold a close embrace, and the follow sets the distance. The base step moves side to
+        side, and beginners dance it within their first class.
+      </p>
+
+      <blockquote class="pullquote">
+        "The village expands beyond the dance floor."
+      </blockquote>
+
+      <p>
+        You do not need a partner. Dancers change partners through the evening, so you can arrive
+        alone. You do not need experience, and you do not need to book ahead for a drop-in class.
+      </p>
+
+      <p>
+        Berlin has classes and socials every week, run by organizers across the city. Our calendar
+        lists all of them in one place, whoever runs them.
+      </p>
+
+      <div class="btn-row">
+        <a href={`${base}/calendar`} class="btn">See the calendar</a>
+        <a href={`${base}/faq`} class="btn">Read the FAQ</a>
+      </div>
+    </div>
+  </Panel>
+</V6Layout>

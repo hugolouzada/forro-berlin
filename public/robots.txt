@@ -1,0 +1,9 @@
+# NOTE: crawlers only read robots.txt from a domain ROOT. This site is served
+# from a GitHub Pages project path (/forro-berlin/), so this file lives at
+# /forro-berlin/robots.txt and will be IGNORED until the site moves to its own
+# domain. It is kept here so it works unchanged after that move.
+
+User-agent: *
+Allow: /
+
+Sitemap: https://hugolouzada.github.io/forro-berlin/sitemap.xml

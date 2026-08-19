@@ -1,0 +1,47 @@
+---
+interface Props {
+  id: string;
+  label: string;
+  title: string;
+  lede?: string;
+}
+import SiteFooter from './SiteFooter.astro';
+
+const { id, label, title, lede } = Astro.props;
+const base = import.meta.env.BASE_URL;
+---
+<header class="bar">
+  <a href={`${base}/`} class="back"><span aria-hidden="true">&larr;</span> Tome Forró Berlin</a>
+</header>
+
+<main class="panel" transition:name={`card-${id}`}>
+  <div class="panel__inner">
+    <span class="panel__label">{label}</span>
+    <h1 class="panel__title" set:html={title} />
+    {lede && <p class="panel__lede">{lede}</p>}
+    <hr class="panel__rule" />
+    <slot />
+  </div>
+</main>
+
+<SiteFooter />
+
+<script>
+  // Esc returns to the grid. Routed through the back link so the
+  // ClientRouter picks it up and the view transition still plays.
+  document.addEventListener('astro:page-load', () => {
+    const back = document.querySelector<HTMLAnchorElement>('.back');
+    if (!back) return;
+
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') back!.click();
+    }
+
+    document.addEventListener('keydown', onKey);
+    document.addEventListener(
+      'astro:before-swap',
+      () => document.removeEventListener('keydown', onKey),
+      { once: true }
+    );
+  });
+</script>

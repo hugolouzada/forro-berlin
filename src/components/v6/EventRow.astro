@@ -1,0 +1,45 @@
+---
+// One row of a calendar table. Shared by the Class & Event Calendar and the
+// Festival Calendar so both surfaces stay typographically identical.
+interface Props {
+  when: string;
+  title: string;
+  where?: string;
+  /** 'class' | 'event' — omitted on the festival calendar, which is all one kind. */
+  kind?: 'class' | 'event';
+  /** Marks a Tome Forró Berlin event. Adds the accent badge and edge. */
+  ours?: boolean;
+  /** Entry price, already formatted (e.g. "€10"). Column collapses if absent. */
+  price?: string;
+  href?: string;
+  dateTime?: string;
+}
+const { when, title, where, kind, ours = false, price, href, dateTime } = Astro.props;
+
+const Tag = href ? 'a' : 'div';
+const classes = ['evt', ours && 'evt--ours'].filter(Boolean).join(' ');
+---
+<Tag
+  class={classes}
+  data-kind={kind}
+  data-ours={ours ? 'true' : undefined}
+  href={href}
+  target={href ? '_blank' : undefined}
+  rel={href ? 'noopener noreferrer' : undefined}
+>
+  <span class="evt__when">
+    {dateTime ? <time datetime={dateTime}>{when}</time> : when}
+  </span>
+
+  <span class="evt__main">
+    <span class="evt__title">{title}</span>
+    {where && <span class="evt__where">{where}</span>}
+  </span>
+
+  <span class="evt__price">{price}</span>
+
+  <span class="evt__tags">
+    {ours && <span class="tag tag--ours">Tome Forró</span>}
+    {kind && <span class={`tag tag--${kind}`}>{kind}</span>}
+  </span>
+</Tag>

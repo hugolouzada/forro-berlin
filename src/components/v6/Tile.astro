@@ -1,0 +1,31 @@
+---
+interface Props {
+  id: string;
+  title: string;
+  intro: string;
+  href: string;
+  img: string;
+  external?: boolean;
+}
+const { id, title, intro, href, img, external = false } = Astro.props;
+---
+<a
+  class={`tile tile--${id}`}
+  href={href}
+  style={`--tile-img: url('${img}')`}
+  transition:name={`card-${id}`}
+  target={external ? '_blank' : undefined}
+  rel={external ? 'noopener noreferrer' : undefined}
+>
+  <span class="tile__photo" aria-hidden="true"></span>
+
+  <div class="tile__head">
+    <h2 class="tile__title">{title}</h2>
+  </div>
+
+  <div class="tile__foot">
+    <p class="tile__intro">{intro}</p>
+  </div>
+
+  <span class="tile__cue" aria-hidden="true">&rarr;</span>
+</a>

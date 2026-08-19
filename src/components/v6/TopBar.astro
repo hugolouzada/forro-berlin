@@ -1,0 +1,40 @@
+---
+// Homepage top bar: plain text left, radio placeholder centre, logo right.
+// Deliberately contains no links — the cards are the navigation.
+const base = import.meta.env.BASE_URL;
+---
+<header class="topbar">
+  {/* This is the homepage's only h1. The six cards are h2s, so without it
+      the most important page in the site had no top-level heading at all. */}
+  <h1 class="topbar__name">Tome Forró Berlin</h1>
+
+  {/* Inert placeholder. The stream it will eventually carry sits behind a
+      Cloudflare anti-hotlink token, so nothing is wired up yet: no network
+      request, no audio element. Laid out at final size so adding the real
+      player later is a drop-in. */}
+  <div class="radio" role="group" aria-label="Forró radio (coming soon)">
+    <button class="radio__play" type="button" disabled aria-disabled="true" title="Radio coming soon">
+      <span aria-hidden="true">▶</span>
+      <span class="visually-hidden">Play radio</span>
+    </button>
+    <span class="radio__meta">
+      <span class="radio__station">Forró Tradicional</span>
+      <span class="radio__status">Coming soon</span>
+    </span>
+    <button class="radio__mute" type="button" disabled aria-disabled="true" title="Muted by default">
+      <span aria-hidden="true">🔇</span>
+      <span class="visually-hidden">Unmute radio</span>
+    </button>
+  </div>
+
+  {/* Explicit dimensions reserve the box before load, so the bar doesn't
+      shift when the logo arrives (CLS is a Core Web Vital). */}
+  <img
+    class="topbar__logo"
+    src={`${base}/images/v6/logo.webp`}
+    alt="Tome Forró Berlin e.V. logo"
+    width="240"
+    height="224"
+    fetchpriority="high"
+  />
+</header>

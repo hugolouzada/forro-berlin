@@ -1,0 +1,70 @@
+---
+// Shows the soonest upcoming Tome Forró event. The event may come from the
+// live feed (links out to its dance-events page) or from one of our own
+// event pages (links internally), so this takes a resolved shape rather
+// than a ForroEvent.
+export interface NextUp {
+  title: string;
+  date: string;
+  time: string;
+  endTime?: string;
+  venue?: string;
+  price?: string;
+  image: string;
+  href: string;
+  external: boolean;
+}
+
+interface Props {
+  event?: NextUp;
+}
+const { event } = Astro.props;
+
+const day = event
+  ? new Date(event.date + 'T' + event.time).toLocaleDateString('en-GB', {
+      weekday: 'long', day: 'numeric', month: 'long',
+    })
+  : null;
+
+const detail = event
+  ? [
+      `${event.time}${event.endTime ? `–${event.endTime}` : ''}`,
+      event.venue,
+      event.price,
+    ].filter(Boolean).join(' · ')
+  : null;
+
+// A link only when there is something to link to — the empty state is
+// inert rather than a dead end.
+const Tag = event ? 'a' : 'div';
+---
+<Tag
+  class={`tile tile--next${event ? '' : ' is-empty'}`}
+  transition:name="card-next"
+  href={event?.href}
+  target={event?.external ? '_blank' : undefined}
+  rel={event?.external ? 'noopener noreferrer' : undefined}
+  style={event ? `--tile-img: url('${event.image}')` : undefined}
+>
+  {event && <span class="tile__photoband" aria-hidden="true"></span>}
+
+  {/* Slides up from behind the banner on hover to cover the photo. */}
+  {event && <span class="tile__cover" aria-hidden="true"></span>}
+
+  <div class="tile__nextbody">
+    <span class="tile__label">Next event</span>
+    {event ? (
+      <>
+        <h2 class="tile__title">{event.title}</h2>
+        <div class="tile__reveal">
+          <div>
+            <p class="tile__meta">{day}</p>
+            <p class="tile__meta">{detail}</p>
+          </div>
+        </div>
+      </>
+    ) : (
+      <h2 class="tile__title">No events planned in the near future</h2>
+    )}
+  </div>
+</Tag>

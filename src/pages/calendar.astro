@@ -1,0 +1,188 @@
+---
+import V6Layout from '../layouts/V6Layout.astro';
+import Panel from '../components/v6/Panel.astro';
+import EventRow from '../components/v6/EventRow.astro';
+import { getUpcomingBerlinEvents, TOME_FORRO_HOST_ID, type ForroEvent } from '../lib/fetchEvents';
+
+// PLACEHOLDER — see src/data/exampleEvents.json. Remove this import and the
+// spread below before the site goes public.
+import exampleData from '../data/exampleEvents.json';
+
+const base = import.meta.env.BASE_URL;
+
+// PLACEHOLDER pricing — a flat figure for typesetting. The feed actually
+// carries a per-event `price` string (e.g. "Drop in, 10/5 Class ticket"),
+// so this can be wired to real data once the format is agreed.
+const PLACEHOLDER_PRICE = '€10';
+
+interface Row {
+  date: string;
+  time: string;
+  endTime?: string;
+  title: string;
+  venue: string;
+  kind: 'class' | 'event';
+  ours: boolean;
+  href?: string;
+  slug?: string;
+}
+
+// The feed's three types collapse to the two tags we surface here:
+// a lesson is a "class", anything else (social, festival) is an "event".
+function kindOf(e: ForroEvent): 'class' | 'event' {
+  return e.type === 'class' ? 'class' : 'event';
+}
+
+const live: Row[] = (await getUpcomingBerlinEvents()).map(e => ({
+  date: e.date,
+  time: e.time,
+  endTime: e.endTime,
+  title: e.title,
+  venue: e.venue,
+  kind: kindOf(e),
+  ours: e.hostId === TOME_FORRO_HOST_ID,
+  href: `${e.detailUrl}?backgroundColor=121212`,
+}));
+
+const examples = exampleData.events as Row[];
+
+const rows = [...live, ...examples].sort((a, b) =>
+  (a.date + a.time).localeCompare(b.date + b.time)
+);
+
+const counts = {
+  all: rows.length,
+  class: rows.filter(r => r.kind === 'class').length,
+  event: rows.filter(r => r.kind === 'event').length,
+};
+
+function when(date: string, time: string) {
+  return new Date(date + 'T' + time).toLocaleDateString('en-GB', {
+    weekday: 'short', day: 'numeric', month: 'short',
+  });
+}
+
+// Each listing as a DanceEvent, so the calendar is machine-readable rather
+// than an opaque wall of rows.
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'Forró classes and events in Berlin',
+  numberOfItems: rows.length,
+  itemListElement: rows.map((r, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    item: {
+      '@type': 'DanceEvent',
+      name: r.title,
+      startDate: `${r.date}T${r.time}`,
+      ...(r.endTime ? { endDate: `${r.date}T${r.endTime}` } : {}),
+      eventStatus: 'https://schema.org/EventScheduled',
+      eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+      location: {
+        '@type': 'Place',
+        name: r.venue || 'Berlin',
+        address: { '@type': 'PostalAddress', addressLocality: 'Berlin', addressCountry: 'DE' },
+      },
+      ...(r.ours ? { organizer: { '@type': 'NGO', name: 'Tome Forró Berlin e.V.' } } : {}),
+    },
+  })),
+};
+---
+<V6Layout
+  ink
+  schema={schema}
+  title="Forró Class &amp; Event Calendar in Berlin — Tome Forró Berlin"
+  description="Every upcoming forró class, social, and event in Berlin from all local organizers. Filter by classes or events. No partner needed, no experience required."
+>
+  <Panel
+    id="calendar"
+    label="What's on"
+    title="Class &amp; Event Calendar"
+    lede="Everything happening in Berlin, from every local organizer."
+  >
+    <div class="panel__body">
+      <p>
+        Several organizers run weekly classes across the city, typically grouped by level:
+        <strong>beginner</strong>, <strong>improver</strong>, and <strong>intermediate/advanced</strong>.
+        No partner needed — forró is danced in a rotating partner format, so you'll dance with many
+        different people throughout the session.
+      </p>
+      <p>
+        Rows marked <strong>Tome Forró</strong> are organised by us. Everything else is run by
+        fellow Berlin organizers, listed here so you have one place to look.
+      </p>
+    </div>
+
+    <hr class="panel__rule" />
+
+    {rows.length > 0 ? (
+      <>
+        <div class="filter" role="group" aria-label="Filter by type">
+          <button class="filter__btn" data-filter="all" aria-pressed="true">
+            All <span class="filter__count">{counts.all}</span>
+          </button>
+          <button class="filter__btn" data-filter="class" aria-pressed="false">
+            Classes <span class="filter__count">{counts.class}</span>
+          </button>
+          <button class="filter__btn" data-filter="event" aria-pressed="false">
+            Events <span class="filter__count">{counts.event}</span>
+          </button>
+        </div>
+
+        <div class="evt-list">
+          {rows.map(r => (
+            <EventRow
+              when={`${when(r.date, r.time)} · ${r.endTime ? `${r.time}–${r.endTime}` : r.time}`}
+              dateTime={r.date}
+              title={r.title}
+              where={r.venue}
+              kind={r.kind}
+              ours={r.ours}
+              price={PLACEHOLDER_PRICE}
+              href={r.href ?? (r.slug ? `${base}/our-events/${r.slug}` : undefined)}
+            />
+          ))}
+        </div>
+
+        <p class="filter-empty" hidden>Nothing scheduled in this category yet.</p>
+      </>
+    ) : (
+      <div class="panel__body">
+        <p>
+          The community calendar is temporarily unreachable. Listings are aggregated live from Berlin
+          organizers — please check back shortly.
+        </p>
+      </div>
+    )}
+  </Panel>
+</V6Layout>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const filter = document.querySelector<HTMLElement>('.filter');
+    if (!filter) return;
+
+    const rows = Array.from(document.querySelectorAll<HTMLElement>('.evt[data-kind]'));
+    const empty = document.querySelector<HTMLElement>('.filter-empty');
+
+    filter.addEventListener('click', event => {
+      const btn = (event.target as HTMLElement).closest<HTMLButtonElement>('.filter__btn');
+      if (!btn) return;
+
+      const kind = btn.dataset.filter;
+      filter.querySelectorAll<HTMLButtonElement>('.filter__btn').forEach(b => {
+        b.setAttribute('aria-pressed', String(b === btn));
+      });
+
+      let shown = 0;
+      rows.forEach(row => {
+        const match = kind === 'all' || row.dataset.kind === kind;
+        row.hidden = !match;
+        if (match) shown += 1;
+      });
+
+      if (empty) empty.hidden = shown > 0;
+    });
+  });
+</script>

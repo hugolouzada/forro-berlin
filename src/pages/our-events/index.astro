@@ -1,0 +1,49 @@
+---
+import V6Layout from '../../layouts/V6Layout.astro';
+import Panel from '../../components/v6/Panel.astro';
+
+const base = import.meta.env.BASE_URL;
+
+// Hand-maintained index of our own event pages. Add an entry here when you
+// add a page under src/pages/v6/our-events/.
+const events = [
+  {
+    slug: 'forro-da-lua',
+    name: 'Forró da Lua — DJ Ivan Lanús live',
+    date: 'Saturday 12 September 2026',
+    example: true,
+  },
+];
+---
+<V6Layout
+  ink
+  title="Our Events — Tome Forró Berlin"
+  description="Parties, workshops, and concerts organised by Tome Forró Berlin e.V. — every event we run, with full details."
+>
+  <Panel
+    id="our-events"
+    label="Organised by us"
+    title="Our Events"
+    lede="Parties, workshops, and concerts run by Tome Forró Berlin e.V."
+  >
+    <div class="panel__body">
+      <p>
+        Every event we organise gets its own page here, with the full line-up, venue, and ticket
+        details. For classes and events run by other Berlin organizers, see the
+        <a href={`${base}/calendar`}>Class &amp; Event Calendar</a>.
+      </p>
+    </div>
+
+    <ul class="linklist">
+      {events.map(e => (
+        <li class="linklist__item">
+          <a href={`${base}/our-events/${e.slug}`}>{e.name}</a>
+          <span class="linklist__meta">
+            {e.date}
+            {e.example && <span class="tag tag--ours">Example</span>}
+          </span>
+        </li>
+      ))}
+    </ul>
+  </Panel>
+</V6Layout>

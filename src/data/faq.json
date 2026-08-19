@@ -1,24 +1,45 @@
 {
+  "_source": "Dance etiquette guide from tomeforro.berlin/fqas/, condensed under the technical-writer ruleset (.claude/skills/technical-writer/SKILL.md).",
   "faq": [
     {
-      "question": "What is Forró?",
-      "answer": "Forró is a family of partner dances from northeastern Brazil, danced to lively music featuring accordion, zabumba drum, and triangle. It's joyful, social, and easy to pick up — most people are dancing by the end of their first class."
+      "question": "What should I know about personal hygiene?",
+      "answer": "Shower before class or a party. Skip garlic and onion beforehand. Check that your clothes do not smell of smoke. Brush your teeth and carry mints. Avoid chewing gum, because your partner's face sits close to yours. Wear deodorant and bring it with you. Choose a light perfume if you wear one, since heavy scents can make your partner dizzy. Bring a small towel and a spare shirt if you sweat a lot."
     },
     {
-      "question": "Do I need a partner to come?",
-      "answer": "No partner needed! Forró is danced in a rotating partner format at socials, so you'll dance with many different people throughout the evening. Everyone is welcome to come alone."
+      "question": "How close should the embrace be?",
+      "answer": "Forró uses a close embrace. The lead offers it and the follow decides how close to go. Follows, use the lead's right arm as a frame and keep contact with it. Leads, extend your arm to widen the frame if the embrace feels too close. Do not squeeze. Keep your arm off the ribcage, because pressure there forces the follow to bend backwards. Follows, avoid pressing down on the lead."
     },
     {
-      "question": "I've never danced before. Can I come to a social?",
-      "answer": "Absolutely. Forró socials in Berlin are relaxed and welcoming. If you're brand new, we recommend a beginner class first — but you're always welcome to just show up and watch, then jump in when you feel ready."
+      "question": "How do I ask someone to dance?",
+      "answer": "Leads and follows can both ask. Walk up and ask, offer your hand, or tilt your head toward the floor. A light touch on the arm works if you already know the person. Dancers swap partners through the night, so expect to ask people you have not met. Either partner can ask for a second song. If your partner steps out of the embrace when the song ends, let them go. Ask newcomers too."
     },
     {
-      "question": "What is the code of conduct?",
-      "answer": "Forró is a consent-based dance. Always ask before dancing, accept a 'no' graciously, and respect your partner's comfort. Our community is built on trust and inclusion — harassment of any kind is not tolerated."
+      "question": "What should I wear?",
+      "answer": "Wear clothes that let you and your partner move. Tight skirts shorten your steps. Baggy sleeves catch your partner's hand during turns. Leave heavy jewellery at home. Tie long hair back, and skip a high ponytail that can whip your partner during a turn. Wear light shoes. Heels make quick steps harder. Leads, avoid rubber soles, because they grip the floor and can twist your knee on a turn. Move keys and phones to a pocket that will not press into your partner."
     },
     {
-      "question": "Where can I find regular classes in Berlin?",
-      "answer": "Several organizers run weekly classes across the city. Check the Events section above for the current schedule. Classes are typically grouped by level: beginner, improver, and intermediate/advanced."
+      "question": "What should I watch for on the dance floor?",
+      "answer": "Watch the couples around you and fit your movements to the space you have. Both roles share this job. Leads, hold back a big turn if it will push your partner into another couple. Follows, signal when the space behind your lead is blocked. Never dance aerials on a social floor. Stay aware if you close your eyes, because you can still drift. Apologise when you collide with someone. Step off the floor to talk after a song."
+    },
+    {
+      "question": "What makes a good dance partner?",
+      "answer": "Dance at your partner's level. Build up to harder moves once you see what they can follow. A steady base and small, clean movements make a good dance. Do not blame your partner when a move fails. Thank your partner when the song ends."
+    },
+    {
+      "question": "How do I decline a dance?",
+      "answer": "Say no politely, and offer to dance later if you want to. Decline when you feel uncomfortable or when the dance looks unsafe. Do not decline someone because they are new. If someone declines you, they may want to rest, get a drink, or have promised the song already. Do not follow them around the room. If people decline you repeatedly, ask a friend or a teacher what to change. Check your embrace first."
+    },
+    {
+      "question": "How do I give feedback?",
+      "answer": "Give feedback in class. At a party people came to dance, so offer tips only when someone asks. Accept it when a person does not want to give you feedback at a party. Say what worked as well as what you would change. Speak from your own experience. Keep it to one point at a time. Ask a teacher to watch if your feedback is not landing."
+    },
+    {
+      "question": "Do I need to know my dance level?",
+      "answer": "Yes. Classes and workshops split by level so the teacher can build on what the group already knows. Start in the beginners' class if you are new to Forró or new to the role you want to learn. This holds even if you dance something else already. Ask your teacher about moving up once the level stops challenging you. Ask a teacher which level to pick when you register for a festival. A lower level does not teach you less."
+    },
+    {
+      "question": "Do girls follow and boys lead?",
+      "answer": "No. We use the words lead and follow. Dance roles carry no gender, and you pick your own. Try both roles, because each one teaches you what the other needs. Respect a woman who leads and a man who follows. You do not have to switch roles to balance the numbers in a class. Do not pressure anyone into a role."
     }
   ]
 }

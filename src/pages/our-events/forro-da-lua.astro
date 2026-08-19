@@ -1,0 +1,103 @@
+---
+// EXAMPLE EVENT PAGE — typesetting placeholder so the layout of a single
+// event page can be reviewed. Details are illustrative. Delete or replace
+// with a real event before the site goes public.
+import V6Layout from '../../layouts/V6Layout.astro';
+import Panel from '../../components/v6/Panel.astro';
+
+const base = import.meta.env.BASE_URL;
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'DanceEvent',
+  name: 'Forró da Lua — DJ Ivan Lanús live',
+  description:
+    'An evening of vinyl forró with DJ Ivan Lanús. Beginner class at 20:00, social dancing until late.',
+  startDate: '2026-09-12T20:00+02:00',
+  endDate: '2026-09-13T01:00+02:00',
+  eventStatus: 'https://schema.org/EventScheduled',
+  eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+  image: new URL(`${base}/images/v6/forro-da-lua.webp`, Astro.site).href,
+  location: {
+    '@type': 'Place',
+    name: 'Prachtsaal',
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Berlin',
+      addressRegion: 'Neukölln',
+      addressCountry: 'DE',
+    },
+  },
+  organizer: { '@type': 'NGO', name: 'Tome Forró Berlin e.V.', url: new URL(`${base}/`, Astro.site).href },
+  offers: {
+    '@type': 'Offer',
+    price: '10',
+    priceCurrency: 'EUR',
+    availability: 'https://schema.org/InStock',
+    url: new URL(`${base}/our-events/forro-da-lua`, Astro.site).href,
+  },
+};
+---
+<V6Layout
+  ink
+  schema={schema}
+  ogImage={`${base}/images/v6/forro-da-lua.webp`}
+  title="Forró da Lua — DJ Ivan Lanús live — Tome Forró Berlin"
+  description="An evening of forró with DJ Ivan Lanús, live in Neukölln. Beginner class at 20:00, social dancing until late. All levels welcome."
+>
+  <Panel
+    id="our-events"
+    label="Example event · 12 September 2026"
+    title="Forró da Lua"
+    lede="An evening of vinyl forró with DJ Ivan Lanús, live in Neukölln."
+  >
+    <div class="panel__body">
+      <dl class="factlist">
+        <div class="factlist__row">
+          <dt>When</dt>
+          <dd>Saturday 12 September 2026, 20:00 – 01:00</dd>
+        </div>
+        <div class="factlist__row">
+          <dt>Where</dt>
+          <dd>Prachtsaal, Neukölln, Berlin</dd>
+        </div>
+        <div class="factlist__row">
+          <dt>Price</dt>
+          <dd>10 € / 5 € reduced · cash at the door</dd>
+        </div>
+        <div class="factlist__row">
+          <dt>Level</dt>
+          <dd>All levels — no partner needed</dd>
+        </div>
+      </dl>
+
+      <hr class="panel__rule" />
+
+      <p>
+        We open the evening with a <strong>beginner class at 20:00</strong>, so you can walk in
+        having never danced forró and be on the floor within the hour. No partner needed — we rotate
+        throughout.
+      </p>
+      <p>
+        From 21:00, <strong>DJ Ivan Lanús</strong> plays a vinyl set of traditional forró pé-de-serra
+        — the accordion, zabumba, and triangle sound the dance grew up on. Social dancing runs until
+        the small hours.
+      </p>
+
+      <blockquote class="pullquote">
+        "The village expands beyond the dance floor."
+      </blockquote>
+
+      <p>
+        Forró in Berlin is a consent-based dance. Always ask before dancing, accept a no graciously,
+        and hold the space with care. Read our full
+        <a href={`${base}/faq`}>code of conduct</a> before you come.
+      </p>
+
+      <div class="btn-row">
+        <a href={`${base}/our-events`} class="btn">All our events</a>
+        <a href={`${base}/calendar`} class="btn">Class &amp; Event Calendar</a>
+      </div>
+    </div>
+  </Panel>
+</V6Layout>

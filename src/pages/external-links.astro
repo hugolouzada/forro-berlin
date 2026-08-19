@@ -1,0 +1,50 @@
+---
+import V6Layout from '../layouts/V6Layout.astro';
+import Panel from '../components/v6/Panel.astro';
+
+// Add entries here as they come. `note` is optional.
+const links = [
+  {
+    name: 'Forrozin Freiburg — European festival calendar',
+    href: 'https://forrozinfreiburg.de/tanzen-forro-festivals/',
+    note: 'Forró festivals across Europe, listed month by month and updated through the year.',
+  },
+];
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'External Links',
+  description: 'Forró resources maintained by other organizers.',
+  hasPart: links.map(l => ({ '@type': 'WebPage', name: l.name, url: l.href })),
+};
+---
+<V6Layout
+  ink
+  schema={schema}
+  title="External Links — Tome Forró Berlin"
+  description="Forró resources worth knowing about: festival calendars, partner organizers, and other links maintained outside Tome Forró Berlin."
+>
+  <Panel
+    id="external-links"
+    label="Elsewhere"
+    title="External Links"
+    lede="Forró resources kept by other people, collected here so you can find them."
+  >
+    <div class="panel__body">
+      <p>
+        These sites are run by other organizers. We do not maintain them, and we cannot vouch for
+        their opening times, prices, or dates.
+      </p>
+    </div>
+
+    <ul class="linklist">
+      {links.map(l => (
+        <li class="linklist__item">
+          <a href={l.href} target="_blank" rel="noopener noreferrer">{l.name}</a>
+          {l.note && <span class="linklist__meta">{l.note}</span>}
+        </li>
+      ))}
+    </ul>
+  </Panel>
+</V6Layout>
