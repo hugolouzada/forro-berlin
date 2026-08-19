@@ -4,7 +4,9 @@ import type { APIRoute } from 'astro';
 // its priorities stay explicit. Keep in sync when adding a page.
 const ROUTES = [
   { path: '', priority: '1.0', changefreq: 'weekly' },
+  { path: 'atopia/', priority: '0.9', changefreq: 'monthly' },
   { path: 'calendar/', priority: '0.9', changefreq: 'daily' },
+  { path: 'volunteer/', priority: '0.5', changefreq: 'monthly' },
   { path: 'external-links/', priority: '0.5', changefreq: 'monthly' },
   { path: 'our-events/', priority: '0.8', changefreq: 'weekly' },
   { path: 'our-events/forro-da-lua/', priority: '0.6', changefreq: 'monthly' },

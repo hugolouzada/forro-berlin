@@ -1,31 +1,37 @@
 ---
-// One row of a calendar table. Shared by the Class & Event Calendar and the
-// Festival Calendar so both surfaces stay typographically identical.
+// One row of a calendar table. Shared by every calendar surface so they stay
+// typographically identical.
 interface Props {
   when: string;
   title: string;
   where?: string;
-  /** 'class' | 'event' — omitted on the festival calendar, which is all one kind. */
+  /** 'class' | 'event' — omitted where every row is the same kind. */
   kind?: 'class' | 'event';
-  /** Marks a Tome Forró Berlin event. Adds the accent badge and edge. */
+  /** Marks a Tome Forró Berlin event. Adds the accent badge and row edge. */
   ours?: boolean;
+  /** Singles out a big event. The only solid tag. */
+  special?: boolean;
   /** Entry price, already formatted (e.g. "€10"). Column collapses if absent. */
   price?: string;
   href?: string;
   dateTime?: string;
 }
-const { when, title, where, kind, ours = false, price, href, dateTime } = Astro.props;
+const { when, title, where, kind, ours = false, special = false, price, href, dateTime } =
+  Astro.props;
+
+// Only send people to a new tab when the link actually leaves the site.
+const isExternal = Boolean(href && /^https?:\/\//.test(href));
 
 const Tag = href ? 'a' : 'div';
-const classes = ['evt', ours && 'evt--ours'].filter(Boolean).join(' ');
+const classes = ['evt', ours && 'evt--ours', special && 'evt--special'].filter(Boolean).join(' ');
 ---
 <Tag
   class={classes}
   data-kind={kind}
   data-ours={ours ? 'true' : undefined}
   href={href}
-  target={href ? '_blank' : undefined}
-  rel={href ? 'noopener noreferrer' : undefined}
+  target={isExternal ? '_blank' : undefined}
+  rel={isExternal ? 'noopener noreferrer' : undefined}
 >
   <span class="evt__when">
     {dateTime ? <time datetime={dateTime}>{when}</time> : when}
@@ -39,6 +45,7 @@ const classes = ['evt', ours && 'evt--ours'].filter(Boolean).join(' ');
   <span class="evt__price">{price}</span>
 
   <span class="evt__tags">
+    {special && <span class="tag tag--special">★ Special</span>}
     {ours && <span class="tag tag--ours">Tome Forró</span>}
     {kind && <span class={`tag tag--${kind}`}>{kind}</span>}
   </span>

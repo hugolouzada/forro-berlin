@@ -1,0 +1,122 @@
+---
+import V6Layout from '../layouts/V6Layout.astro';
+import Panel from '../components/v6/Panel.astro';
+import InfoCard from '../components/v6/InfoCard.astro';
+import { ATOPIA, ATOPIA_ADDRESS } from '../data/atopia';
+
+const base = import.meta.env.BASE_URL;
+
+// Event + Schedule is the correct shape for something recurring: one node
+// that says "every Wednesday" rather than a row per date. The full street
+// address is the strongest local-SEO signal on the site.
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'DanceEvent',
+  name: `${ATOPIA.name} — weekly forró in Berlin`,
+  description:
+    'Weekly forró night at Atopia Kaffeehaus, Prenzlauer Berg. Donation-based crash course at 20:00, dance party until midnight.',
+  eventStatus: 'https://schema.org/EventScheduled',
+  eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+  image: new URL(`${base}/images/v6/atopia.webp`, Astro.site).href,
+  eventSchedule: {
+    '@type': 'Schedule',
+    byDay: 'https://schema.org/Wednesday',
+    startTime: ATOPIA.classStart,
+    endTime: ATOPIA.partyEnd,
+    repeatFrequency: 'P1W',
+    scheduleTimezone: 'Europe/Berlin',
+  },
+  location: {
+    '@type': 'Place',
+    name: ATOPIA.venue,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: ATOPIA.street,
+      postalCode: ATOPIA.postalCode,
+      addressLocality: ATOPIA.city,
+      addressCountry: 'DE',
+    },
+    hasMap: ATOPIA.mapsUrl,
+  },
+  organizer: {
+    '@type': 'NGO',
+    name: 'Tome Forró Berlin e.V.',
+    url: new URL(`${base}/`, Astro.site).href,
+  },
+  offers: {
+    '@type': 'Offer',
+    price: '10',
+    priceCurrency: 'EUR',
+    availability: 'https://schema.org/InStock',
+  },
+};
+---
+<V6Layout
+  ink
+  schema={schema}
+  ogImage={`${base}/images/v6/atopia.webp`}
+  title="Atopia — Weekly Forró in Berlin, Every Wednesday — Tome Forró Berlin"
+  description="Forró every Wednesday at Atopia Kaffeehaus, Prenzlauer Berg. Donation-based crash course at 20:00, dance party 21:00 to midnight, €10 entry. No partner needed."
+>
+  <Panel
+    id="atopia"
+    label="Every Wednesday · Prenzlauer Berg"
+    title="Atopia"
+    lede="Our weekly night. Same room, same people, every Wednesday of the year."
+  >
+    <div class="panel__body">
+      <p>
+        Turn up alone, leave having danced with twenty people. The crash course at eight will get
+        you moving even if you have never heard forró before, and the floor stays busy until
+        midnight.
+      </p>
+    </div>
+
+    <hr class="panel__rule" />
+
+    <div class="bento">
+      <InfoCard title="Key info">
+        <ul class="bullets">
+          <li><strong>Wednesdays</strong>, every week</li>
+          <li>
+            <strong>{ATOPIA.classStart}–{ATOPIA.classEnd}</strong> crash course, donation based
+          </li>
+          <li><strong>{ATOPIA.partyStart}–{ATOPIA.partyEnd}</strong> dance party</li>
+          <li>Entry <strong>{ATOPIA.price}</strong></li>
+          <li>
+            {ATOPIA.venue}<br />
+            {ATOPIA.street}, {ATOPIA.postalCode} {ATOPIA.city}
+          </li>
+        </ul>
+        <a class="maplink" href={ATOPIA.mapsUrl} target="_blank" rel="noopener noreferrer">
+          Open in Google Maps &nearr;
+        </a>
+      </InfoCard>
+
+      <InfoCard title="Etiquette">
+        <ul class="bullets">
+          <li>
+            Read the <a href={`${base}/faq`}>FAQ &amp; conduct</a> before your first night.
+          </li>
+          <li>
+            Something making you uncomfortable? Talk to our safe-space volunteers. They wear
+            <strong>blue bracelets</strong>.
+          </li>
+          <li>
+            Keep drinks off the floor. Someone will step on them. Bring your empties back to the bar.
+          </li>
+          <li>Stay quiet during the class so people can hear the teacher.</li>
+          <li>Keep the noise down outside after 22:00, and leave promptly once the party ends.</li>
+          <li>Treat the Atopia staff and the organizers with respect.</li>
+        </ul>
+      </InfoCard>
+
+      <InfoCard title="Become a volunteer" href={`${base}/volunteer`}>
+        <p>
+          Take a shift on the door or behind the bar, help newcomers find their feet, and get
+          something back for it. This scene is built by the people who run it.
+        </p>
+      </InfoCard>
+    </div>
+  </Panel>
+</V6Layout>

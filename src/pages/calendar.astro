@@ -2,53 +2,13 @@
 import V6Layout from '../layouts/V6Layout.astro';
 import Panel from '../components/v6/Panel.astro';
 import EventRow from '../components/v6/EventRow.astro';
-import { getUpcomingBerlinEvents, TOME_FORRO_HOST_ID, type ForroEvent } from '../lib/fetchEvents';
-
-// PLACEHOLDER — see src/data/exampleEvents.json. Remove this import and the
-// spread below before the site goes public.
-import exampleData from '../data/exampleEvents.json';
+import { getCalendarRows, PLACEHOLDER_PRICE } from '../lib/calendarRows';
 
 const base = import.meta.env.BASE_URL;
 
-// PLACEHOLDER pricing — a flat figure for typesetting. The feed actually
-// carries a per-event `price` string (e.g. "Drop in, 10/5 Class ticket"),
-// so this can be wired to real data once the format is agreed.
-const PLACEHOLDER_PRICE = '€10';
-
-interface Row {
-  date: string;
-  time: string;
-  endTime?: string;
-  title: string;
-  venue: string;
-  kind: 'class' | 'event';
-  ours: boolean;
-  href?: string;
-  slug?: string;
-}
-
-// The feed's three types collapse to the two tags we surface here:
-// a lesson is a "class", anything else (social, festival) is an "event".
-function kindOf(e: ForroEvent): 'class' | 'event' {
-  return e.type === 'class' ? 'class' : 'event';
-}
-
-const live: Row[] = (await getUpcomingBerlinEvents()).map(e => ({
-  date: e.date,
-  time: e.time,
-  endTime: e.endTime,
-  title: e.title,
-  venue: e.venue,
-  kind: kindOf(e),
-  ours: e.hostId === TOME_FORRO_HOST_ID,
-  href: `${e.detailUrl}?backgroundColor=121212`,
-}));
-
-const examples = exampleData.events as Row[];
-
-const rows = [...live, ...examples].sort((a, b) =>
-  (a.date + a.time).localeCompare(b.date + b.time)
-);
+// Shared with the homepage Calendar card, so the two can never disagree
+// about what the next events are.
+const rows = await getCalendarRows(base);
 
 const counts = {
   all: rows.length,
@@ -92,13 +52,13 @@ const schema = {
 <V6Layout
   ink
   schema={schema}
-  title="Forró Class &amp; Event Calendar in Berlin — Tome Forró Berlin"
+  title="Upcoming Events &amp; Classes in Berlin — Tome Forró Berlin"
   description="Every upcoming forró class, social, and event in Berlin from all local organizers. Filter by classes or events. No partner needed, no experience required."
 >
   <Panel
     id="calendar"
     label="What's on"
-    title="Class &amp; Event Calendar"
+    title="Upcoming events &amp; classes"
     lede="Everything happening in Berlin, from every local organizer."
   >
     <div class="panel__body">
@@ -139,6 +99,7 @@ const schema = {
               where={r.venue}
               kind={r.kind}
               ours={r.ours}
+              special={r.special}
               price={PLACEHOLDER_PRICE}
               href={r.href ?? (r.slug ? `${base}/our-events/${r.slug}` : undefined)}
             />

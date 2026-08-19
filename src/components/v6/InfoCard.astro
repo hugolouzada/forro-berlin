@@ -1,0 +1,24 @@
+---
+// A card in a page-level bento. Static by default; pass `href` to make the
+// whole card a link (used for the volunteer call to action).
+interface Props {
+  title: string;
+  /** Renders the card as a link with a cue arrow. */
+  href?: string;
+  /** Fills the card with the accent instead of the raised ink surface. */
+  accent?: boolean;
+}
+const { title, href, accent = false } = Astro.props;
+
+const Tag = href ? 'a' : 'div';
+const classes = ['infocard', href && 'infocard--link', accent && 'infocard--accent']
+  .filter(Boolean)
+  .join(' ');
+---
+<Tag class={classes} href={href}>
+  <h2 class="infocard__title">{title}</h2>
+  <div class="infocard__body">
+    <slot />
+  </div>
+  {href && <span class="infocard__cue" aria-hidden="true">&rarr;</span>}
+</Tag>

@@ -1,0 +1,74 @@
+---
+import V6Layout from '../layouts/V6Layout.astro';
+import Panel from '../components/v6/Panel.astro';
+
+const base = import.meta.env.BASE_URL;
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: 'Volunteer for us',
+  description: 'Help run forró in Berlin. Volunteer with Tome Forró Berlin e.V.',
+};
+---
+<V6Layout
+  ink
+  schema={schema}
+  ogImage={`${base}/images/v6/volunteer.webp`}
+  title="Volunteer for us — Tome Forró Berlin"
+  description="Help run forró in Berlin. Volunteer with Tome Forró Berlin e.V. at the door, behind the bar, or as a safe-space contact, and get something back for it."
+>
+  <Panel
+    id="volunteer"
+    label="Join the team"
+    title="Volunteer for us"
+    lede="The scene runs on people who show up early and stay late. Be one of them."
+  >
+    <div class="panel__body">
+      <p>
+        Every class, every party, every festival weekend happens because someone took a shift. They
+        take money at the door, keep the bar moving, welcome people arriving alone for the first
+        time, and wear the blue bracelet that says <em>talk to me if something is wrong</em>.
+      </p>
+      <p>
+        None of it takes special skills. It takes showing up, and it is the fastest way to go from
+        knowing nobody to knowing everybody.
+      </p>
+
+      <h2 class="panel__lede">What you get back</h2>
+      <p>
+        Volunteers get benefits at our events.
+        <span class="placeholder">Placeholder: the list of perks is not settled yet.</span>
+      </p>
+
+      <h2 class="panel__lede">How to start</h2>
+      <p>
+        Write to us and say which evening suits you. We will take it from there.
+      </p>
+
+      <div class="btn-row">
+        <a href="mailto:tomeforroberlin@gmail.com?subject=Volunteering%20with%20Tome%20Forr%C3%B3" class="btn">
+          Email us
+        </a>
+      </div>
+
+      <hr class="panel__rule" />
+
+      <h2 class="panel__lede">Coming soon</h2>
+      <ul class="linklist">
+        <li class="linklist__item">
+          <span class="linklist__pending">Code of conduct for volunteers</span>
+          <span class="linklist__meta">
+            <span class="placeholder">Placeholder: document not written yet</span>
+          </span>
+        </li>
+        <li class="linklist__item">
+          <span class="linklist__pending">Sign-up form</span>
+          <span class="linklist__meta">
+            <span class="placeholder">Placeholder: form not created yet</span>
+          </span>
+        </li>
+      </ul>
+    </div>
+  </Panel>
+</V6Layout>

@@ -1,7 +1,11 @@
 ---
+// Homepage card. Same shape as NextEventTile: full-opacity photo, solid
+// accent banner pinned to the bottom, and on hover an accent panel rides up
+// over the photo while the blurb expands the banner.
 interface Props {
   id: string;
   title: string;
+  /** Hover-revealed blurb. */
   intro: string;
   href: string;
   img: string;
@@ -17,14 +21,16 @@ const { id, title, intro, href, img, external = false } = Astro.props;
   target={external ? '_blank' : undefined}
   rel={external ? 'noopener noreferrer' : undefined}
 >
-  <span class="tile__photo" aria-hidden="true"></span>
+  <span class="tile__photoband" aria-hidden="true"></span>
 
-  <div class="tile__head">
+  {/* Slides up from behind the banner on hover to cover the photo. */}
+  <span class="tile__cover" aria-hidden="true"></span>
+
+  <div class="tile__body">
     <h2 class="tile__title">{title}</h2>
-  </div>
-
-  <div class="tile__foot">
-    <p class="tile__intro">{intro}</p>
+    <div class="tile__reveal">
+      <div><p class="tile__meta">{intro}</p></div>
+    </div>
   </div>
 
   <span class="tile__cue" aria-hidden="true">&rarr;</span>

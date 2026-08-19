@@ -125,111 +125,68 @@ body.v6--ink {
 
 .back:hover { color: var(--paper); }
 
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
 /* ── Homepage top bar ──────────────────────────────────────────
-   Three zones: name, radio, logo. No links — the cards navigate.
+   Two zones: name left, logo right. No links — the cards navigate.
    The logo needs no border or plate: it is black-on-white artwork
-   sitting on a pure-white page, so it separates on its own. */
+   sitting on a pure-white page, so it separates on its own.
+
+   Flex with min-width:0, NOT a grid of fixed tracks. The previous
+   `grid-template-columns: 1fr auto 1fr` could not shrink below its
+   min-content width, so on a 390px phone the bar overflowed and
+   pushed the logo off screen. */
 
 .topbar {
   height: var(--bar-h);
   flex: none;
   padding-inline: var(--pad);
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 1rem;
 }
 
 .topbar__name {
+  min-width: 0;
   font-size: var(--fs-base);
   font-weight: 600;
   letter-spacing: -0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .topbar__logo {
-  justify-self: end;
+  flex: none;
   display: block;
   height: calc(var(--bar-h) - 18px);
   width: auto;
   mix-blend-mode: multiply; /* drops the JPEG's white box on a white page */
 }
 
-/* ── Radio widget (placeholder) ────────────────────────────── */
-
-.radio {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.3rem 0.75rem 0.3rem 0.35rem;
-  border: 1px solid var(--dust);
-  border-radius: 999px;
-}
-
-.radio__play,
-.radio__mute {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  flex: none;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: var(--ember);
-  color: #fff;
-  font-size: var(--fs-sm);
-  line-height: 1;
-  font-family: inherit;
-  cursor: pointer;
-}
-
-.radio__mute {
-  background: transparent;
-  color: var(--muted);
-  font-size: var(--fs-sm);
-}
-
-.radio__play[disabled],
-.radio__mute[disabled] { cursor: not-allowed; opacity: 0.55; }
-
-.radio__meta {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.15;
-}
-
-.radio__station { font-size: var(--fs-sm); font-weight: 500; white-space: nowrap; }
-.radio__status  { font-size: var(--fs-sm); color: var(--muted); transform: scale(0.85); transform-origin: left center; }
-
 /* ── The card grid ─────────────────────────────────────────────
-   No top bar — the cards are the navigation. Five tiles, all the
-   same height; one (FAQ) is twice the width of the rest. Same
-   --gap between tiles and at the page edge, so the whole thing
-   reads as one consistent rhythm — roughly even, not identical. */
+   Eight cards, four per row. A 12-column track lets the widths vary
+   within a row: the Calendar is widest because it is the only card
+   carrying a live list, Our Events narrowest because it carries a
+   title alone. Top row is taller than the bottom, so the four
+   utility cards read as secondary without shrinking their type. */
 
-/* All five cards are the same 1×1 footprint — no spans, no explicit
-   placement, just auto-flow across 3 columns. Five cards in six cells
-   leaves the last cell empty, which reads as breathing room next to
-   the footer rather than a broken row. */
 .grid {
   display: grid;
   gap: var(--gap);
   padding: var(--gap);
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(2, 1fr);
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: 1.35fr 1fr;
 }
+
+.tile--next           { grid-column:  1 / 4;  grid-row: 1; }
+.tile--atopia         { grid-column:  4 / 7;  grid-row: 1; }
+.tile--calendar       { grid-column:  7 / 11; grid-row: 1; }
+.tile--our-events     { grid-column: 11 / 13; grid-row: 1; }
+
+.tile--about          { grid-column:  1 / 4;  grid-row: 2; }
+.tile--faq            { grid-column:  4 / 7;  grid-row: 2; }
+.tile--external-links { grid-column:  7 / 10; grid-row: 2; }
+.tile--volunteer      { grid-column: 10 / 13; grid-row: 2; }
 
 /* Desktop: the page is exactly one viewport, never more. The body is a
    flex column pinned to 100dvh and the grid takes whatever is left after
@@ -248,103 +205,35 @@ body.v6--ink {
   body.v6--home .foot { flex: none; }
 }
 
-/* ── Tile ──────────────────────────────────────────────────── */
+/* ── Tile ──────────────────────────────────────────────────────
+   One card format across the whole grid. Photo at full opacity fills
+   the card, a solid accent banner is pinned to the bottom carrying the
+   title, and on hover an accent panel rides up over the photo while the
+   blurb expands the banner. Cards marked --static opt out of the hover
+   and show their slot content at rest instead. */
 
-/* justify-content: flex-start — title anchors to the top padding on every
-   card, full stop. Anchoring to the bottom instead (flex-end) was the
-   actual cause of the repeated "misaligned" reports: each card's intro
-   paragraph is a different length, so its wrapped height differed, and
-   bottom-anchoring the title+intro block as one unit meant the title's
-   own position shifted with it. Top-anchoring removes that dependency —
-   every title starts at the exact same offset regardless of what's below. */
 .tile {
   position: relative;
   isolation: isolate;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: flex-end;   /* banner pinned to the bottom edge */
   /* grid items default to min-height:auto, which refuses to shrink below
      their content — that alone would force the grid past one viewport. */
   min-height: 0;
-  gap: 0.4rem;
-  padding: clamp(0.9rem, 0.6rem + 0.8vw, 1.6rem);
-  border: 1px solid var(--dust);
-  border-radius: 10px;
-  background: var(--paper-raised);
-  color: var(--ink);
-  text-decoration: none;
-  transition: border-color 0.25s, transform 0.25s;
-}
-
-/* Photo sits behind everything, dimmed. Only this layer ever blurs. */
-.tile__photo {
-  position: absolute;
-  inset: -6%;
-  z-index: -1;
-  background-image: var(--tile-img);
-  background-size: cover;
-  background-position: center;
-  opacity: 0.35;
-  transition: opacity 0.35s, filter 0.35s, transform 0.5s;
-}
-
-/* Scrim keeps type legible over any photo — title sits at the top now,
-   so the scrim is darkest at the top and fades toward the bottom. */
-.tile__photo::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.96) 12%, rgba(255, 255, 255, 0.55) 60%, rgba(255, 255, 255, 0.2) 100%);
-  transition: background 0.35s;
-}
-
-.tile__title {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: var(--fs-lg);
-  line-height: 1.08;
-  letter-spacing: -0.015em;
-}
-
-.tile__intro {
-  font-size: var(--fs-sm);
-  line-height: 1.55;
-  color: var(--muted);
-  max-width: 42ch;
-}
-
-.tile__cue {
-  position: absolute;
-  top: clamp(0.9rem, 0.6rem + 0.8vw, 1.6rem);
-  right: clamp(0.9rem, 0.6rem + 0.8vw, 1.6rem);
-  font-size: var(--fs-base);
-  line-height: 1;
-  color: var(--accent-text);
-  opacity: 0;
-  transform: translateX(-4px);
-  transition: opacity 0.25s, transform 0.25s;
-}
-
-.tile__head,
-.tile__foot { display: flex; flex-direction: column; gap: 0.4rem; }
-
-/* ── Next Event card ───────────────────────────────────────────
-   The one card that deliberately breaks the shared tile pattern:
-   solid accent ground, photo band at FULL opacity (never dimmed,
-   never blurred), and text visible at rest rather than on hover. */
-
-.tile--next {
   padding: 0;
-  border-color: var(--ember);
+  border: 1px solid var(--ember);
+  border-radius: 10px;
   background: var(--ember);
   color: #fff;
-  justify-content: flex-end;   /* banner pinned to the bottom edge */
+  text-decoration: none;
+  transition: border-color 0.25s;
 }
 
-/* Photo fills the whole card; the banner sits over its bottom edge, so the
-   image is only lightly covered at rest. */
-.tile--next .tile__photoband {
+/* Photo fills the whole card at full opacity: never dimmed, never blurred.
+   The banner covers only its bottom edge at rest. */
+.tile__photoband {
   position: absolute;
   inset: 0;
   z-index: 0;
@@ -353,18 +242,22 @@ body.v6--ink {
   background-position: center;
 }
 
-/* Full-card accent panel, parked below the fold of the card. On hover it
-   slides up so the banner appears to grow and cover the photo. */
-.tile--next .tile__cover {
+/* Full-card accent panel, parked below the fold. On hover it slides up so
+   the banner appears to grow and swallow the photo. 60% opaque (rgba, not
+   var(--ember) — CSS can't append alpha to a var() token) rather than solid:
+   the photo tints ember instead of disappearing under it. tile__body sits
+   above this in z-index with its own solid ember fill, so banner text stays
+   at full contrast regardless of this value — tune the 0.6 freely. */
+.tile__cover {
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: var(--ember);
+  background: rgba(199, 80, 42, 0.6);
   transform: translateY(100%);
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.tile--next .tile__nextbody {
+.tile__body {
   position: relative;
   z-index: 2;
   flex: none;
@@ -375,98 +268,150 @@ body.v6--ink {
   background: var(--ember);
 }
 
-.tile--next .tile__label {
-  font-size: var(--fs-sm);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  opacity: 0.85;
-  line-height: 1.3;
-}
-
 /* Base size, not --fs-lg: this is a compact banner strip, and the large
-   heading size was what made it eat the photo. Still within the 3-size scale. */
-.tile--next .tile__title {
+   heading size ate the photo. Still within the 3-size scale. */
+.tile__title {
   color: #fff;
+  font-weight: 600;
   font-size: var(--fs-base);
   line-height: 1.2;
+  letter-spacing: -0.01em;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.tile--next .tile__meta {
+/* Full white, no opacity: --ember gives white only 4.56:1, so any fade at
+   all drops this below AA. Hierarchy comes from size and weight instead. */
+.tile__meta {
   font-size: var(--fs-sm);
   line-height: 1.35;
-  opacity: 0.9;
 }
 
-/* grid-template-rows 0fr→1fr animates an auto height cleanly, so the
-   detail lines expand the banner instead of popping. Default is OPEN —
-   the collapsed state lives in the hover query below, so touch devices
-   (which never hover) get the full detail at rest. */
-.tile--next .tile__reveal {
+/* grid-template-rows 0fr→1fr animates an auto height cleanly, so the blurb
+   expands the banner instead of popping. Default is OPEN — the collapsed
+   state lives in the hover query below, so touch devices (which never
+   hover) get the full text at rest. */
+.tile__reveal {
   display: grid;
   grid-template-rows: 1fr;
   transition: grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.tile--next .tile__reveal > * { overflow: hidden; }
+.tile__reveal > * { overflow: hidden; }
+
+.tile__cue {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.7rem;
+  z-index: 2;
+  font-size: var(--fs-base);
+  line-height: 1;
+  color: #fff;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.25s, transform 0.25s;
+}
 
 /* Empty state fills the card with the accent — no photo, no cover. */
 .tile--next.is-empty { justify-content: center; }
-.tile--next.is-empty .tile__nextbody { flex: 1; justify-content: center; background: none; }
+.tile--next.is-empty .tile__body { flex: 1; justify-content: center; background: none; }
 .tile--next.is-empty .tile__title { -webkit-line-clamp: none; font-size: var(--fs-lg); }
 
-/* ── Level 2: hover / focus. Pointer devices only. Every card behaves
-   the same way — nothing is pre-expanded or exempt from the gate.
-   On touch the intro is simply always visible — a hover-gated
-   affordance is invisible to most of this audience.            */
+/* "Special event: {title}" is one line at rest — the multi-line clamp every
+   other card's title uses would let a long title push the banner taller
+   than its neighbours. Plain single-line ellipsis instead; hover un-clamps
+   it below, so whatever "…" hid becomes readable rather than staying lost. */
+.tile--next:not(.is-empty) .tile__title {
+  display: block;
+  -webkit-line-clamp: unset;
+  -webkit-box-orient: unset;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Calendar card ─────────────────────────────────────────────
+   Same shared tile underneath (photo, cover, banner, hover) as every
+   other card, so the banner is identically sized. The one addition is
+   .tile__tablewrap: the mini table sits in the space above the banner,
+   centred both ways within it, its translucent background carrying
+   legibility on its own — the photo behind it stays crisp, same as
+   every other card. */
+
+.tile--calendar .tile__tablewrap {
+  position: relative;
+  z-index: 0;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem;
+}
+
+.cal-panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.65);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.cal-panel__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.4rem 0.7rem;
+  border-bottom: 1px solid rgba(18, 18, 18, 0.1);
+}
+
+.cal-panel__row:last-child { border-bottom: 0; }
+
+.cal-panel__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.cal-panel__date {
+  flex: none;
+  font-size: var(--fs-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+/* ── Hover / focus. Pointer devices only. On touch there is no hover, so
+   the collapsed state is defined ONLY in here — otherwise phone users
+   would never see the blurb at all. */
 
 @media (hover: hover) and (pointer: fine) {
-  .tile__intro {
-    opacity: 0;
-    transform: translateY(6px);
-    transition: opacity 0.3s, transform 0.3s;
-  }
+  .tile .tile__reveal { grid-template-rows: 0fr; }
+
+  .tile:hover .tile__cover,
+  .tile:focus-visible .tile__cover { transform: translateY(0); }
+
+  .tile:hover .tile__reveal,
+  .tile:focus-visible .tile__reveal { grid-template-rows: 1fr; }
 
   .tile:hover,
-  .tile:focus-visible { border-color: var(--ember); }
-
-  /* Next Event: compact strip at rest, then the accent panel rides up over
-     the photo and the detail lines expand the banner with it. */
-  .tile--next .tile__reveal { grid-template-rows: 0fr; }
-
-  .tile--next:hover .tile__cover,
-  .tile--next:focus-visible .tile__cover { transform: translateY(0); }
-
-  .tile--next:hover .tile__reveal,
-  .tile--next:focus-visible .tile__reveal { grid-template-rows: 1fr; }
-
-  .tile:hover .tile__intro,
-  .tile:focus-visible .tile__intro {
-    opacity: 1;
-    transform: none;
-  }
-
-  /* Blur the photo. Never the type. */
-  .tile:hover .tile__photo,
-  .tile:focus-visible .tile__photo {
-    opacity: 0.5;
-    filter: blur(12px);
-    transform: scale(1.06);
-  }
-
-  /* A little of the accent, on hover only — a warm ember wash behind the
-     title, fading into the usual paper scrim lower down. Rest state stays
-     neutral; the accent only shows up as something you find. */
-  .tile:hover .tile__photo::after,
-  .tile:focus-visible .tile__photo::after {
-    background: linear-gradient(to bottom, rgba(199, 80, 42, 0.24) 0%, rgba(255, 255, 255, 0.86) 55%, rgba(255, 255, 255, 0.78) 100%);
-  }
+  .tile:focus-visible { border-color: var(--ember-deep); }
 
   .tile:hover .tile__cue,
   .tile:focus-visible .tile__cue { opacity: 1; transform: none; }
+
+  .tile--next:hover .tile__title,
+  .tile--next:focus-visible .tile__title {
+    white-space: normal;
+    overflow: visible;
+  }
 }
 
 /* ── Footer ────────────────────────────────────────────────── */
@@ -725,6 +670,104 @@ body.v6--ink {
 .factlist dd { color: var(--paper); }
 .factlist dd a { color: var(--accent-text); }
 
+/* ── Page-level bento (Atopia) ─────────────────────────────────
+   Cards on the ink panel. Key info sits top-left; on wide screens
+   the two static cards share a row and the link card spans below. */
+
+.bento {
+  display: grid;
+  gap: var(--gap);
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.bento > :last-child { grid-column: 1 / -1; }
+
+.infocard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: clamp(1rem, 0.7rem + 0.8vw, 1.6rem);
+  border: 1px solid var(--dust-ink);
+  border-radius: 10px;
+  background: var(--ink-soft);
+  color: inherit;
+}
+
+.infocard__title {
+  font-size: var(--fs-base);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+
+.infocard__body p { color: var(--muted-ink); }
+.infocard__body a { color: var(--accent-text); }
+
+/* Only the link variant reacts to the pointer; the info cards are inert. */
+.infocard--link {
+  position: relative;
+  text-decoration: none;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.infocard--link:hover { border-color: var(--ember); background: var(--ink); }
+
+.infocard__cue {
+  position: absolute;
+  top: clamp(1rem, 0.7rem + 0.8vw, 1.6rem);
+  right: clamp(1rem, 0.7rem + 0.8vw, 1.6rem);
+  color: var(--accent-text);
+  line-height: 1;
+}
+
+.bullets { list-style: none; display: flex; flex-direction: column; gap: 0.55rem; }
+
+.bullets li {
+  position: relative;
+  padding-left: 1rem;
+  color: var(--muted-ink);
+  line-height: 1.5;
+}
+
+.bullets li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.65em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--ember);
+}
+
+.bullets strong { color: var(--paper); font-weight: 600; }
+.bullets a { color: var(--accent-text); }
+
+.maplink {
+  align-self: flex-start;
+  margin-top: auto;
+  font-size: var(--fs-sm);
+  color: var(--accent-text);
+}
+
+/* Marks content that is deliberately unfinished, so it can never be
+   mistaken for real copy on a live page. */
+.placeholder {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border: 1px dashed var(--muted-ink);
+  border-radius: 4px;
+  font-size: var(--fs-sm);
+  color: var(--muted-ink);
+}
+
+.linklist__pending {
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  color: var(--muted-ink);
+}
+
 /* ── Imprint ───────────────────────────────────────────────── */
 
 .legal-heading {
@@ -798,11 +841,18 @@ body.v6--ink {
   line-height: 1.5;
 }
 
+/* Four levels, loudest last. Differentiation is by fill as much as hue, so
+   the hierarchy still survives greyscale:
+     class    neutral outline
+     event    teal outline
+     ours     ember outline
+     special  solid ember                                            */
 .tag--class { color: var(--muted-ink); }
 .tag--event { color: var(--teal-text); }
+.tag--ours  { color: var(--accent-text); font-weight: 600; }
 
-/* Solid fill, not an outline — this is the one that must catch the eye. */
-.tag--ours {
+/* The only solid tag. Reserved for events we single out. */
+.tag--special {
   background: var(--ember);
   border-color: var(--ember);
   color: #fff;
@@ -888,8 +938,10 @@ body.v6--ink {
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: auto;
   }
+  /* Wildcard, not a list of class names: a ninth card added later drops
+     into the stack without anyone remembering to edit this block. */
+  .grid > * { grid-column: auto; grid-row: auto; }
   .tile { min-height: 26dvh; }
-  .brand-mark { width: 40px; }
 }
 
 @media (max-width: 600px) {

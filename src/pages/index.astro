@@ -5,57 +5,54 @@ import SiteFooter from '../components/v6/SiteFooter.astro';
 import Tile from '../components/v6/Tile.astro';
 import NextEventTile from '../components/v6/NextEventTile.astro';
 import type { NextUp } from '../components/v6/NextEventTile.astro';
-import { getUpcomingBerlinEvents, TOME_FORRO_HOST_ID } from '../lib/fetchEvents';
-
-// PLACEHOLDER — see src/data/exampleEvents.json. Remove this import and the
-// `examples` block below before the site goes public.
-import exampleData from '../data/exampleEvents.json';
+import CalendarTile from '../components/v6/CalendarTile.astro';
+import { getCalendarRows, PLACEHOLDER_PRICE } from '../lib/calendarRows';
+import { ATOPIA } from '../data/atopia';
 
 const base = import.meta.env.BASE_URL;
 
-// PLACEHOLDER pricing — flat figure for typesetting, matching the calendar.
-const PLACEHOLDER_PRICE = '€10';
+const rows = await getCalendarRows(base);
 
-// The Next Event card shows OUR events only — the feed aggregates several
-// Berlin organizers, so filter by host. Our own event pages are candidates
-// too, and they win the link: an event we wrote a page for should send
-// people to that page, not to the aggregator's listing.
-const live: NextUp[] = (await getUpcomingBerlinEvents())
-  .filter(e => e.hostId === TOME_FORRO_HOST_ID)
-  .map(e => ({
-    title: e.title,
-    date: e.date,
-    time: e.time,
-    endTime: e.endTime,
-    venue: e.venue,
+// "Our next event" now shows SPECIAL events only, not everything we run —
+// Atopia is weekly and already has its own card, so showing it here too
+// was redundant. Only rows explicitly flagged `special` qualify, which
+// today means the placeholder example only; the weekly and the live feed
+// (the API has no field that means "big event") never match.
+const nextEvent: NextUp | undefined = rows
+  .filter(r => r.special)
+  .map(r => ({
+    title: r.title,
+    date: r.date,
+    time: r.time,
+    endTime: r.endTime,
+    venue: r.venue,
     price: PLACEHOLDER_PRICE,
-    image: e.pictureUrl ?? `${base}/images/v6/events.webp`,
-    href: `${e.detailUrl}?backgroundColor=121212`,
-    external: true,
-  }));
+    // A poster-style image, not the event's own listing photo: this card
+    // represents "a special event" generically. Once special events carry
+    // their own promo art, prefer that per-row instead of this flat default.
+    image: `${base}/images/v6/special-event.webp`,
+    href: r.href ?? (r.slug ? `${base}/our-events/${r.slug}` : `${base}/calendar`),
+    external: /^https?:\/\//.test(r.href ?? ''),
+  }))[0];
 
-const examples: NextUp[] = exampleData.events
-  .filter(e => e.ours && e.slug)
-  .map(e => ({
-    title: e.title,
-    date: e.date,
-    time: e.time,
-    endTime: e.endTime,
-    venue: e.venue,
-    price: PLACEHOLDER_PRICE,
-    image: `${base}/images/v6/${e.image}`,
-    href: `${base}/our-events/${e.slug}`,
-    external: false,
-  }));
+// Straight through in date order, no dedupe: at one line each the repeats
+// read as the actual weekly rhythm rather than clutter. The calendar page
+// is where you go to filter and look further ahead.
+function when(date: string, time: string) {
+  return new Date(date + 'T' + time).toLocaleDateString('en-GB', {
+    weekday: 'short', day: 'numeric', month: 'short',
+  });
+}
 
-const nextEvent = [...live, ...examples].sort((a, b) =>
-  (a.date + a.time).localeCompare(b.date + b.time)
-)[0];
+const upNext = rows.slice(0, 5).map(r => ({
+  title: r.title,
+  dateLabel: when(r.date, r.time),
+}));
 ---
 <V6Layout
   home
-  title="Tome Forró Berlin — Classes, Socials &amp; Events"
-  description="Find forró classes, weekly socials, and upcoming events in Berlin. All levels welcome."
+  title="Tome Forró Berlin — Weekly Forró Classes, Socials &amp; Events"
+  description="Forró every Wednesday at Atopia Kaffeehaus, plus every class and social across Berlin. All levels welcome, no partner needed."
 >
   <TopBar />
 
@@ -63,19 +60,17 @@ const nextEvent = [...live, ...examples].sort((a, b) =>
     <NextEventTile event={nextEvent} />
 
     <Tile
-      id="calendar"
-      title="Class &amp; Event Calendar"
-      intro="Every weekly class and social across the city, from all Berlin organizers — filter by what you're looking for."
-      href={`${base}/calendar`}
-      img={`${base}/images/v6/calendar.webp`}
+      id="atopia"
+      title="Atopia"
+      intro={`Our weekly night, every Wednesday at ${ATOPIA.venue}. Crash course at ${ATOPIA.classStart}, dancing until midnight.`}
+      href={`${base}/atopia`}
+      img={`${base}/images/v6/atopia.webp`}
     />
 
-    <Tile
-      id="external-links"
-      title="External Links"
-      intro="Festival calendars, partner organizers, and other forró resources worth knowing about."
-      href={`${base}/external-links`}
-      img={`${base}/images/v6/external-links.webp`}
+    <CalendarTile
+      rows={upNext}
+      href={`${base}/calendar`}
+      img={`${base}/images/v6/calendar.webp`}
     />
 
     <Tile
@@ -89,7 +84,7 @@ const nextEvent = [...live, ...examples].sort((a, b) =>
     <Tile
       id="about"
       title="What is Forró?"
-      intro="A joyful partner dance from northeastern Brazil, danced to accordion, zabumba drum, and triangle."
+      intro="A partner dance from northeastern Brazil, danced to accordion, zabumba drum, and triangle."
       href={`${base}/about`}
       img={`${base}/images/v6/about.webp`}
     />
@@ -97,9 +92,25 @@ const nextEvent = [...live, ...examples].sort((a, b) =>
     <Tile
       id="faq"
       title="FAQ &amp; Conduct"
-      intro="No partner needed. No experience required. Everything you need to know before your first class."
+      intro="No partner needed. No experience required. Everything you need to know before your first night."
       href={`${base}/faq`}
       img={`${base}/images/v6/faq.webp`}
+    />
+
+    <Tile
+      id="external-links"
+      title="External Links"
+      intro="Festival calendars, partner organizers, and other forró resources worth knowing about."
+      href={`${base}/external-links`}
+      img={`${base}/images/v6/external-links.webp`}
+    />
+
+    <Tile
+      id="volunteer"
+      title="Volunteer for us"
+      intro="Take a shift, welcome newcomers, keep the scene running. There is something in it for you too."
+      href={`${base}/volunteer`}
+      img={`${base}/images/v6/volunteer.webp`}
     />
   </div>
 

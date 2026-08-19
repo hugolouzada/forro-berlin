@@ -1,0 +1,50 @@
+---
+// The Calendar card is a variant of the shared tile, not the plain Tile
+// component: it needs content (the mini table) positioned ABOVE the banner
+// rather than inside it, which Tile's slot can't do. Photo, cover, banner,
+// and hover machinery are all still the shared .tile system underneath.
+interface Row {
+  title: string;
+  dateLabel: string;
+}
+
+interface Props {
+  rows: Row[];
+  href: string;
+  img: string;
+}
+const { rows, href, img } = Astro.props;
+---
+<a
+  class="tile tile--calendar"
+  href={href}
+  style={`--tile-img: url('${img}')`}
+  transition:name="card-calendar"
+>
+  <span class="tile__photoband" aria-hidden="true"></span>
+
+  {/* Slides up from behind the banner on hover, same as every other card. */}
+  <span class="tile__cover" aria-hidden="true"></span>
+
+  {/* Sits in the space between the top of the card and the banner, centred
+      both ways within it. Sized to content, not stretched to fill it. */}
+  <div class="tile__tablewrap">
+    <div class="cal-panel">
+      {rows.map(r => (
+        <div class="cal-panel__row">
+          <span class="cal-panel__name">{r.title}</span>
+          <span class="cal-panel__date">{r.dateLabel}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <div class="tile__body">
+    <h2 class="tile__title">Upcoming events &amp; classes</h2>
+    <div class="tile__reveal">
+      <div><p class="tile__meta">Curious for more?</p></div>
+    </div>
+  </div>
+
+  <span class="tile__cue" aria-hidden="true">&rarr;</span>
+</a>
