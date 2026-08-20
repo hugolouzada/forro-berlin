@@ -29,6 +29,21 @@ function kindOf(e: ForroEvent): 'class' | 'event' {
   return e.type === 'class' ? 'class' : 'event';
 }
 
+/** Where a row points, and whether that leaves the site.
+ *
+ *  Three cases, in order: the feed gives us a detail URL outright; our own
+ *  events carry a slug for their page here; anything else has no page of its
+ *  own and falls back to the calendar, so no row is ever a dead end.
+ *
+ *  Shared by the Special event card and the calendar rows so the two can
+ *  never resolve the same event to different destinations. */
+export function resolveEventLink(row: CalendarRow, base: string): { href: string; external: boolean } {
+  return {
+    href: row.href ?? (row.slug ? `${base}/our-events/${row.slug}` : `${base}/calendar`),
+    external: /^https?:\/\//.test(row.href ?? ''),
+  };
+}
+
 /** Every upcoming row, sorted. Shared by the calendar page and the homepage
  *  card so the two can never show a different "next three". */
 export async function getCalendarRows(base: string): Promise<CalendarRow[]> {

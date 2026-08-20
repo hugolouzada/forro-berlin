@@ -562,8 +562,11 @@ body.v6--home .foot { flex: none; }
   border-color: var(--muted);
 }
 
+/* :focus-within, not :focus-visible — this card is a <div> (its rows and
+   banner are the links), and a div can never be focused itself. Focusing any
+   link inside it should still light the border. */
 .tile--calendar:hover,
-.tile--calendar:focus-visible {
+.tile--calendar:focus-within {
   border-color: var(--ink);
 }
 
@@ -641,10 +644,31 @@ body.v6--home .foot { flex: none; }
   padding: 0.28rem 0.1rem;
   border-bottom: 1px solid rgba(18, 18, 18, 0.12);
   font-size: var(--fs-sm);
+  /* Each row is a link to its own event. Reset the UA underline and link
+     colour so it stays a table row visually; `display: grid` above already
+     overrides an anchor's inline default, so the layout is unaffected. */
   color: var(--ink);
+  text-decoration: none;
 }
 
 .cal-table__row:last-child { border-bottom: 0; }
+
+/* Eight new tab stops, so they have to be visible when focused. Inset so the
+   ring is not clipped by the wrapper's overflow: hidden. */
+.cal-table__row:focus-visible,
+.tile--calendar .tile__body:focus-visible {
+  outline: 2px solid var(--ember);
+  outline-offset: -2px;
+}
+
+.tile--calendar .tile__body { text-decoration: none; }
+
+/* Nothing else signals that the rows became clickable, so give them a tint —
+   gated, like every hover on this site, because a phone leaves :hover stuck
+   after a tap and the row would stay highlighted for good. */
+@media (hover: hover) and (pointer: fine) {
+  .cal-table__row:hover { background: rgba(18, 18, 18, 0.06); }
+}
 
 .cal-table__name {
   min-width: 0;

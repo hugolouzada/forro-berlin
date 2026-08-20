@@ -3,15 +3,24 @@
 // not an image with a caption. Static banner (no hover-grow: there's no
 // blurb to reveal), and the table itself rotates through the full list only
 // when there's more than fits in view — otherwise it just sits still.
+//
+// Unlike the other tiles this card is NOT one big link: each row goes to its
+// own event and only the banner goes to the calendar. Links cannot nest, so
+// the card itself has to be a plain element — wrapping these in an outer <a>
+// would make the browser silently restructure the DOM.
 interface Row {
   title: string;
   dateLabel: string;
   address: string;
   price: string;
+  /** Already resolved by resolveEventLink(); never empty. */
+  href: string;
+  external: boolean;
 }
 
 interface Props {
   rows: Row[];
+  /** The banner's destination — the full calendar. */
   href: string;
 }
 const { rows, href } = Astro.props;
@@ -24,34 +33,45 @@ const displayRows = rotating ? [...rows, ...rows] : rows;
 // rather than faster — a fixed duration would rush a busy week's list.
 const duration = `${Math.max(rows.length * 2.5, 8)}s`;
 ---
-<a
-  class="tile tile--calendar"
-  href={href}
-  transition:name="card-calendar"
->
+<div class="tile tile--calendar" transition:name="card-calendar">
   <div class="tile__tablewrap">
     {rows.length > 0 ? (
       <div
         class={`cal-table${rotating ? ' cal-table--rotating' : ''}`}
         style={rotating ? `--cal-rotate-duration: ${duration}` : undefined}
       >
-        {displayRows.map((r, i) => (
-          <div class="cal-table__row" aria-hidden={rotating && i >= rows.length ? 'true' : undefined}>
-            <span class="cal-table__name">{r.title}</span>
-            <span class="cal-table__date">{r.dateLabel}</span>
-            <span class="cal-table__address">{r.address}</span>
-            <span class="cal-table__price">{r.price}</span>
-          </div>
-        ))}
+        {displayRows.map((r, i) => {
+          // The duplicate copy exists only to make the loop seamless. It stays
+          // clickable — it is on screen half the time — but is taken out of the
+          // tab order, because focusable content inside aria-hidden would let
+          // keyboard users land somewhere screen readers cannot describe.
+          // `inert` would solve the focus half and break the click half.
+          const isDuplicate = rotating && i >= rows.length;
+          return (
+            <a
+              class="cal-table__row"
+              href={r.href}
+              aria-hidden={isDuplicate ? 'true' : undefined}
+              tabindex={isDuplicate ? -1 : undefined}
+              target={r.external ? '_blank' : undefined}
+              rel={r.external ? 'noopener noreferrer' : undefined}
+            >
+              <span class="cal-table__name">{r.title}</span>
+              <span class="cal-table__date">{r.dateLabel}</span>
+              <span class="cal-table__address">{r.address}</span>
+              <span class="cal-table__price">{r.price}</span>
+            </a>
+          );
+        })}
       </div>
     ) : (
       <p class="cal-table__empty">Nothing in the next 7 days.</p>
     )}
   </div>
 
-  <div class="tile__body">
+  <a class="tile__body" href={href}>
     <h2 class="tile__title">Upcoming events &amp; classes</h2>
-  </div>
+  </a>
 
   <span class="tile__cue" aria-hidden="true">&rarr;</span>
-</a>
+</div>
