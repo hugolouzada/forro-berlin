@@ -1313,32 +1313,32 @@ body.v6--home .foot { flex: none; }
      Too narrow for four columns, so each entry becomes two lines:
        Forró da Sexta — live trio, then DJ se…      <- name
        Loophole, Boddinstraße 60        Fri 21 Aug  <- address · date
-     The list is scrolled by hand here; the desktop auto-rotation is off,
-     which means the duplicate second copy of the rows that CalendarTile
-     renders for that loop has to go, or every event would appear twice. */
 
-  .cal-table--rotating { animation: none; }
-  .cal-table__row[aria-hidden] { display: none; }
+     NO nested scroll container here — that is load-bearing, not tidiness.
+     On iOS WebKit a touch that starts inside a scrollable element stays
+     there: unlike Chromium, WebKit will not chain a horizontal pan out to
+     an ancestor horizontal scroller. So an `overflow-y: auto` list sitting
+     across most of the slide made the carousel unswipeable over the whole
+     card. Two earlier attempts tried to steer the gesture instead of
+     removing the scroller (`overflow-x: hidden`, then `touch-action:
+     pan-y`) and neither could work, because the gesture was never going to
+     reach the carousel in the first place.
 
-  /* The list scrolls vertically, but it must NOT swallow sideways swipes —
-     it fills most of the slide, so if it captured horizontal pans there
-     would be almost nowhere left to grab to change slides.
-
-     `overflow-x: hidden` is the whole mechanism: setting only overflow-y
-     makes the other axis compute to `auto` rather than staying visible,
-     which quietly turned this into a two-axis scroller. With the x axis
-     genuinely unscrollable, a horizontal pan chains to the carousel.
-
-     Deliberately NO `touch-action: pan-y` here. It reads like the right
-     tool but does the opposite: it forbids horizontal panning for touches
-     starting on this element outright, and the gesture does not fall
-     through to the ancestor — so the carousel became unswipeable anywhere
-     over the table, on WebKit especially, and unconditionally, even when
-     the list is short enough not to scroll at all. */
+     The list therefore inherits the desktop marquee: it cycles slowly, so
+     a long week is still fully readable, with nothing to capture a touch.
+     The duplicated second copy of the rows that CalendarTile renders is
+     what makes that loop seamless, so it stays visible here. */
   .tile--calendar .tile__tablewrap {
-    overflow-y: auto;
-    overflow-x: hidden;
-    overscroll-behavior-y: contain;
+    overflow: hidden;
+  }
+
+  /* Each entry is two lines here against desktop's one, so a copy of the
+     list is ~1.8x taller. The duration is set per-event-count in
+     CalendarTile.astro and knows nothing about that, so the same value
+     would scroll nearly twice as fast on a phone. Scale it to hold the
+     reading pace steady. */
+  .cal-table--rotating {
+    animation-duration: calc(var(--cal-rotate-duration, 14s) * 1.8);
   }
 
   .cal-table__row {
