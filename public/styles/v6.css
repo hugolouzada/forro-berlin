@@ -1301,17 +1301,34 @@ body.v6--home .foot { flex: none; }
 
   .dots__dot[aria-current='true'] { background: var(--ember); }
 
-  /* Every pixel here comes out of the slides, so the footer keeps only the
-     two links. The name/year line is dropped — not legally required, while
-     the Imprint link (which stays) is what satisfies the reachability duty
-     under § 5 TMG. */
+  /* Name on the left, links on the right, one row. Every pixel here comes
+     out of the slides, so the row must not wrap — nowrap on both halves
+     means they hold their line rather than stacking and stealing height. */
   .foot {
     height: auto;
     padding-block: 0.5rem;
-    justify-content: flex-end;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    gap: 0.75rem;
   }
 
-  .foot > span { display: none; }
+  .foot > span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .foot nav { flex: none; white-space: nowrap; }
+
+  /* Below ~360px the name only fits by cutting the year off mid-digit
+     ("… e.V. · 20…"), which reads worse than leaving it out. It fits with
+     room to spare on every current phone; this is for the 320px stragglers.
+     The Imprint link is what carries the § 5 TMG duty, and it stays. */
+  @media (max-width: 359px) {
+    .foot > span { display: none; }
+    .foot { justify-content: flex-end; }
+  }
 
   /* Ticker moves to its own row below name+logo instead of sitting inline
      between them — there isn't room for a third inline zone once the name
