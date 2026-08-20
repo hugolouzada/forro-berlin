@@ -20,6 +20,9 @@ interface Props {
 const { title, description, ink = false, home = false, schema, ogImage } = Astro.props;
 
 const bodyClass = ['v6', ink && 'v6--ink', home && 'v6--home'].filter(Boolean).join(' ');
+// The homepage's no-scroll lock has to reach <html>, not just <body>: iOS
+// Safari will scroll the document even when the body says overflow:hidden.
+// Hence `v6-locked` on the root element, homepage only — see v6.css.
 // Normalise to a trailing slash so the canonical always matches the sitemap
 // entry. Without this the homepage self-references /forro-berlin while the
 // sitemap lists /forro-berlin/, which reads as two URLs for one page.
@@ -67,7 +70,7 @@ const organization = {
 const graph = [organization, ...(schema ? (Array.isArray(schema) ? schema : [schema]) : [])];
 ---
 <!doctype html>
-<html lang="en">
+<html lang="en" class={home ? 'v6-locked' : undefined}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

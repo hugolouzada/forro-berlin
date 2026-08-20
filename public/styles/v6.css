@@ -287,9 +287,26 @@ body.v6--ink {
    carousel possible: with the page height fixed, "swipe sideways" becomes
    the only navigation instead of competing with a vertical scroll.
    Homepage-only — inner pages use .panel and scroll normally. */
-body.v6--home {
-  height: 100dvh;
+/* The lock is on BOTH elements. Per spec, body's overflow only propagates
+   to the viewport while html's is `visible`, and iOS Safari is buggy about
+   it regardless — leaving html unlocked let the document scroll on an
+   iPhone even though the body said hidden. */
+html.v6-locked {
+  height: 100%;
   overflow: hidden;
+}
+
+body.v6--home {
+  /* svh, NOT dvh. dvh tracks Safari's collapsing toolbar, so the body grows
+     as the bar retracts and the page becomes scrollable — the very thing
+     this rule exists to prevent. svh is the *smallest* viewport height, with
+     toolbars showing, so the layout always fits and nothing can scroll. The
+     cost is a sliver of unused space once the bar hides, which is the right
+     trade for a uniform, app-like view. */
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  overscroll-behavior: none;  /* kills the rubber-band bounce on iOS */
   display: flex;
   flex-direction: column;
 }
@@ -1307,18 +1324,21 @@ body.v6--home .foot { flex: none; }
      it fills most of the slide, so if it captured horizontal pans there
      would be almost nowhere left to grab to change slides.
 
-     Two things are needed. `overflow-x: hidden` because setting only
-     overflow-y makes the other axis compute to `auto` rather than staying
-     visible, which quietly made this a two-axis scroller. And
-     `touch-action: pan-y`, which tells the browser this element handles
-     vertical panning only, so horizontal gestures pass through to the
-     carousel. overscroll-behavior is scoped to the y axis for the same
-     reason — containing both axes would block the handover. */
+     `overflow-x: hidden` is the whole mechanism: setting only overflow-y
+     makes the other axis compute to `auto` rather than staying visible,
+     which quietly turned this into a two-axis scroller. With the x axis
+     genuinely unscrollable, a horizontal pan chains to the carousel.
+
+     Deliberately NO `touch-action: pan-y` here. It reads like the right
+     tool but does the opposite: it forbids horizontal panning for touches
+     starting on this element outright, and the gesture does not fall
+     through to the ancestor — so the carousel became unswipeable anywhere
+     over the table, on WebKit especially, and unconditionally, even when
+     the list is short enough not to scroll at all. */
   .tile--calendar .tile__tablewrap {
     overflow-y: auto;
     overflow-x: hidden;
     overscroll-behavior-y: contain;
-    touch-action: pan-y;
   }
 
   .cal-table__row {
