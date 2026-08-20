@@ -11,6 +11,8 @@ const ROUTES = [
   { path: 'our-events/', priority: '0.8', changefreq: 'weekly' },
   { path: 'our-events/forro-da-lua/', priority: '0.6', changefreq: 'monthly' },
   { path: 'about/', priority: '0.7', changefreq: 'monthly' },
+  { path: 'what-is-forro/', priority: '0.7', changefreq: 'monthly' },
+  { path: 'news/', priority: '0.6', changefreq: 'monthly' },
   { path: 'faq/', priority: '0.7', changefreq: 'monthly' },
   { path: 'imprint/', priority: '0.3', changefreq: 'yearly' },
 ];

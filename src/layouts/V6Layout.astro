@@ -90,7 +90,16 @@ const graph = [organization, ...(schema ? (Array.isArray(schema) ? schema : [sch
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
     />
     <link rel="stylesheet" href={`${base}/styles/v6.css`} />
-    <style>
+    {/* is:global is load-bearing: without it, Astro scopes this reset to
+        elements literally written in THIS file (html/head/body), and never
+        reaches anything rendered through <slot/> — which is everything on
+        every page. The practical effect was every heading/paragraph quietly
+        keeping the browser's default UA margin (e.g. an <h2>'s ~0.83em
+        top+bottom) on top of this site's own spacing, everywhere, all along
+        — found while chasing why a banner-padding reduction wasn't visibly
+        shrinking a card's title area: the title's own default margin, not
+        the padding, was the bulk of it. */}
+    <style is:global>
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     </style>
     <ClientRouter />

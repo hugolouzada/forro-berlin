@@ -1,0 +1,34 @@
+---
+import V6Layout from '../layouts/V6Layout.astro';
+import Panel from '../components/v6/Panel.astro';
+import { NEWS, activeNews } from '../data/news';
+
+const items = activeNews(NEWS);
+---
+<V6Layout
+  ink
+  title="News — Tome Forró Berlin"
+  description="Announcements from Tome Forró Berlin e.V. — closures, schedule changes, and other short-lived news."
+>
+  <Panel
+    id="news"
+    label="Announcements"
+    title="News"
+    lede="Closures, schedule changes, and anything else worth flagging."
+  >
+    <div class="panel__body">
+      {items.length === 0 && <p>No announcements right now.</p>}
+    </div>
+
+    {items.length > 0 && (
+      <ul class="linklist">
+        {items.map(n => (
+          <li class="linklist__item">
+            <span class="linklist__pending">{n.title}</span>
+            {n.detail && <span class="linklist__meta">{n.detail}</span>}
+          </li>
+        ))}
+      </ul>
+    )}
+  </Panel>
+</V6Layout>

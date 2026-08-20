@@ -1,0 +1,54 @@
+---
+// Announcements card. Same list-above-banner construct as CalendarTile,
+// reusing its .list-panel styling — but the list can be empty (no active
+// notices), which Calendar's never is, so this handles that state too.
+interface Item {
+  title: string;
+}
+
+interface Props {
+  items: Item[];
+  href: string;
+  img: string;
+}
+const { items, href, img } = Astro.props;
+
+// Empty is a real possibility here (unlike Calendar, which always has rows),
+// so this follows NextEventTile's is-empty pattern: inert, no link, no photo.
+const hasItems = items.length > 0;
+const Tag = hasItems ? 'a' : 'div';
+---
+<Tag
+  class={`tile tile--news${hasItems ? '' : ' is-empty'}`}
+  href={hasItems ? href : undefined}
+  style={hasItems ? `--tile-img: url('${img}')` : undefined}
+  transition:name="card-news"
+>
+  {hasItems && <span class="tile__photoband" aria-hidden="true"></span>}
+
+  {/* Slides up from behind the banner on hover, same as every other card. */}
+  {hasItems && <span class="tile__cover" aria-hidden="true"></span>}
+
+  {hasItems && (
+    <div class="tile__tablewrap">
+      <div class="list-panel">
+        {items.map(n => (
+          <div class="list-panel__row">
+            <span class="list-panel__name">{n.title}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+
+  <div class="tile__body">
+    <h2 class="tile__title">{hasItems ? 'Announcements' : 'No announcements right now'}</h2>
+    {hasItems && (
+      <div class="tile__reveal">
+        <div><p class="tile__meta">Curious for more?</p></div>
+      </div>
+    )}
+  </div>
+
+  {hasItems && <span class="tile__cue" aria-hidden="true">&rarr;</span>}
+</Tag>

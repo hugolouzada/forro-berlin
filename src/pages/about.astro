@@ -1,4 +1,10 @@
 ---
+// Draft copy — grounded only in facts already stated elsewhere on the site
+// (the imprint's "brasilianischer Kultur- und Sportverein" wording, and what
+// the Atopia/Our Events/Volunteer pages already say we run). No founding
+// date, membership count, or mission statement exists anywhere in the repo
+// to draw on, so none is invented here. Replace before launch — same status
+// as exampleEvents.json and the imprint's missing Vorstand names.
 import V6Layout from '../layouts/V6Layout.astro';
 import Panel from '../components/v6/Panel.astro';
 
@@ -6,44 +12,38 @@ const base = import.meta.env.BASE_URL;
 ---
 <V6Layout
   ink
-  title="What is Forró? — Tome Forró Berlin"
-  description="Forró is a partner dance from northeastern Brazil, danced to accordion, zabumba drum, and triangle. You need no partner and no experience to start."
+  title="About Us — Tome Forró Berlin"
+  description="Tome Forró Berlin e.V. is a nonprofit forró community in Berlin, running weekly classes, socials, and events."
 >
   <Panel
     id="about"
-    label="From the Sertão to Berlin"
-    title="What is Forró?"
-    lede="A partner dance from northeastern Brazil. You can learn the base step in one class."
+    label="Who we are"
+    title="About Us"
+    lede="A nonprofit forró community, run by the people who show up for it."
   >
     <div class="panel__body">
       <p>
-        Forró is a partner dance from northeastern Brazil. Three instruments carry the music:
-        accordion, zabumba drum, and triangle. The dance comes from the Sertão, the dry backcountry
-        of the northeast.
+        Tome Forró Berlin is a registered nonprofit — a
+        <em>brasilianischer Kultur- und Sportverein</em>, Brazilian culture and sports association.
+        <span class="placeholder">Placeholder: mission statement and founding story not written yet.</span>
       </p>
 
       <p>
-        Dancers hold a close embrace, and the follow sets the distance. The base step moves side to
-        side, and beginners dance it within their first class.
-      </p>
-
-      <blockquote class="pullquote">
-        "The village expands beyond the dance floor."
-      </blockquote>
-
-      <p>
-        You do not need a partner. Dancers change partners through the evening, so you can arrive
-        alone. You do not need experience, and you do not need to book ahead for a drop-in class.
+        We run <a href={`${base}/atopia`}>Atopia</a>, our weekly Wednesday class and social, and
+        organise our own <a href={`${base}/our-events`}>parties, workshops, and concerts</a>
+        beyond it. Everything we run is listed on the
+        <a href={`${base}/calendar`}>upcoming events &amp; classes</a> calendar alongside classes
+        and socials run by other Berlin organizers.
       </p>
 
       <p>
-        Berlin has classes and socials every week, run by organizers across the city. Our calendar
-        lists all of them in one place, whoever runs them.
+        Nothing here runs on its own. It runs because volunteers take shifts at the door, behind
+        the bar, and as safe-space contacts. <a href={`${base}/volunteer`}>Join them</a>.
       </p>
 
       <div class="btn-row">
-        <a href={`${base}/calendar`} class="btn">See the calendar</a>
-        <a href={`${base}/faq`} class="btn">Read the FAQ</a>
+        <a href={`${base}/what-is-forro`} class="btn">What is Forró?</a>
+        <a href={`${base}/volunteer`} class="btn">Volunteer for us</a>
       </div>
     </div>
   </Panel>

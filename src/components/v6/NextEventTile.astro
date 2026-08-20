@@ -17,8 +17,11 @@ export interface NextUp {
 
 interface Props {
   event?: NextUp;
+  /** The poster's true ratio, e.g. "900 / 1125", measured at build time.
+   *  Mobile sizes the card from this so any poster shape fits exactly. */
+  posterAspect?: string;
 }
-const { event } = Astro.props;
+const { event, posterAspect = '4 / 5' } = Astro.props;
 
 const day = event
   ? new Date(event.date + 'T' + event.time).toLocaleDateString('en-GB', {
@@ -44,12 +47,19 @@ const Tag = event ? 'a' : 'div';
   href={event?.href}
   target={event?.external ? '_blank' : undefined}
   rel={event?.external ? 'noopener noreferrer' : undefined}
-  style={event ? `--tile-img: url('${event.image}')` : undefined}
+  style={event ? `--tile-img: url('${event.image}'); --poster-ar: ${posterAspect}` : undefined}
 >
+  {/* Blurred backdrop: same image as the poster below, filling the card so
+      the letterbox around a portrait poster isn't dead space. */}
   {event && <span class="tile__photoband" aria-hidden="true"></span>}
 
   {/* Slides up from behind the banner on hover to cover the photo. */}
   {event && <span class="tile__cover" aria-hidden="true"></span>}
+
+  {/* The poster itself, shown whole (contain) in the space above the banner.
+      Occupying that space as a flex child is what stops the banner from ever
+      covering the poster's own text. */}
+  {event && <span class="tile__poster" aria-hidden="true"></span>}
 
   <div class="tile__body">
     {event ? (

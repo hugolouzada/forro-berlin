@@ -1,49 +1,56 @@
 ---
-// The Calendar card is a variant of the shared tile, not the plain Tile
-// component: it needs content (the mini table) positioned ABOVE the banner
-// rather than inside it, which Tile's slot can't do. Photo, cover, banner,
-// and hover machinery are all still the shared .tile system underneath.
+// Monochrome, no photo — unlike every other card, this one is a data table,
+// not an image with a caption. Static banner (no hover-grow: there's no
+// blurb to reveal), and the table itself rotates through the full list only
+// when there's more than fits in view — otherwise it just sits still.
 interface Row {
   title: string;
   dateLabel: string;
+  address: string;
+  price: string;
 }
 
 interface Props {
   rows: Row[];
   href: string;
-  img: string;
 }
-const { rows, href, img } = Astro.props;
+const { rows, href } = Astro.props;
+
+const rotating = rows.length > 3;
+// Doubled for the seamless loop (see .cal-table--rotating in v6.css); the
+// second copy is hidden from assistive tech so it isn't announced twice.
+const displayRows = rotating ? [...rows, ...rows] : rows;
+// Roughly 2.5s of reading time per row, so a longer week scrolls slower
+// rather than faster — a fixed duration would rush a busy week's list.
+const duration = `${Math.max(rows.length * 2.5, 8)}s`;
 ---
 <a
   class="tile tile--calendar"
   href={href}
-  style={`--tile-img: url('${img}')`}
   transition:name="card-calendar"
 >
-  <span class="tile__photoband" aria-hidden="true"></span>
-
-  {/* Slides up from behind the banner on hover, same as every other card. */}
-  <span class="tile__cover" aria-hidden="true"></span>
-
-  {/* Sits in the space between the top of the card and the banner, centred
-      both ways within it. Sized to content, not stretched to fill it. */}
   <div class="tile__tablewrap">
-    <div class="cal-panel">
-      {rows.map(r => (
-        <div class="cal-panel__row">
-          <span class="cal-panel__name">{r.title}</span>
-          <span class="cal-panel__date">{r.dateLabel}</span>
-        </div>
-      ))}
-    </div>
+    {rows.length > 0 ? (
+      <div
+        class={`cal-table${rotating ? ' cal-table--rotating' : ''}`}
+        style={rotating ? `--cal-rotate-duration: ${duration}` : undefined}
+      >
+        {displayRows.map((r, i) => (
+          <div class="cal-table__row" aria-hidden={rotating && i >= rows.length ? 'true' : undefined}>
+            <span class="cal-table__name">{r.title}</span>
+            <span class="cal-table__date">{r.dateLabel}</span>
+            <span class="cal-table__address">{r.address}</span>
+            <span class="cal-table__price">{r.price}</span>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <p class="cal-table__empty">Nothing in the next 7 days.</p>
+    )}
   </div>
 
   <div class="tile__body">
     <h2 class="tile__title">Upcoming events &amp; classes</h2>
-    <div class="tile__reveal">
-      <div><p class="tile__meta">Curious for more?</p></div>
-    </div>
   </div>
 
   <span class="tile__cue" aria-hidden="true">&rarr;</span>

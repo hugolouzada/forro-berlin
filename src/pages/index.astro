@@ -6,12 +6,31 @@ import Tile from '../components/v6/Tile.astro';
 import NextEventTile from '../components/v6/NextEventTile.astro';
 import type { NextUp } from '../components/v6/NextEventTile.astro';
 import CalendarTile from '../components/v6/CalendarTile.astro';
+import path from 'node:path';
+import sharp from 'sharp';
 import { getCalendarRows, PLACEHOLDER_PRICE } from '../lib/calendarRows';
 import { ATOPIA } from '../data/atopia';
+import { NEWS, activeNews } from '../data/news';
 
 const base = import.meta.env.BASE_URL;
 
 const rows = await getCalendarRows(base);
+
+// One constant feeds both the public URL and the on-disk path, so the two
+// can't drift apart when the poster is swapped.
+const POSTER_FILE = 'special-event.webp';
+
+// The card shows the poster whole rather than cropping it, so the mobile
+// layout has to know its true shape — posters are usually 4:5 but a 9:16
+// story is expected to work too. Read at build time; a missing or unreadable
+// file falls back to 4:5 rather than failing the build.
+let posterAspect = '4 / 5';
+try {
+  const meta = await sharp(path.join(process.cwd(), 'public', 'images', 'v6', POSTER_FILE)).metadata();
+  if (meta.width && meta.height) posterAspect = `${meta.width} / ${meta.height}`;
+} catch {
+  // keep the 4:5 default
+}
 
 // "Our next event" now shows SPECIAL events only, not everything we run —
 // Atopia is weekly and already has its own card, so showing it here too
@@ -29,64 +48,66 @@ const nextEvent: NextUp | undefined = rows
     price: PLACEHOLDER_PRICE,
     // A poster-style image, not the event's own listing photo: this card
     // represents "a special event" generically. Once special events carry
-    // their own promo art, prefer that per-row instead of this flat default.
-    image: `${base}/images/v6/special-event.webp`,
+    // their own promo art, prefer that per-row instead of this flat default
+    // (and read each one's dimensions the same way POSTER_FILE is read above).
+    image: `${base}/images/v6/${POSTER_FILE}`,
     href: r.href ?? (r.slug ? `${base}/our-events/${r.slug}` : `${base}/calendar`),
     external: /^https?:\/\//.test(r.href ?? ''),
   }))[0];
 
-// Straight through in date order, no dedupe: at one line each the repeats
-// read as the actual weekly rhythm rather than clutter. The calendar page
-// is where you go to filter and look further ahead.
+// Soonest-expiring first, capped at two — the top bar ticker is a preview,
+// not the full list (that's what /news is for).
+const tickerItems = activeNews(NEWS).slice(0, 2).map(n => n.title);
+
 function when(date: string, time: string) {
   return new Date(date + 'T' + time).toLocaleDateString('en-GB', {
     weekday: 'short', day: 'numeric', month: 'short',
   });
 }
 
-const upNext = rows.slice(0, 5).map(r => ({
-  title: r.title,
-  dateLabel: when(r.date, r.time),
-}));
+// Everything in the next 7 days, not a fixed count — the card rotates
+// through all of it when there's more than fits in view (see
+// CalendarTile.astro), rather than silently truncating to the first few.
+const now = new Date();
+const horizon = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+const calendarRows = rows
+  .filter(r => {
+    const d = new Date(r.date + 'T' + r.time);
+    return d >= now && d <= horizon;
+  })
+  .map(r => ({
+    title: r.title,
+    dateLabel: when(r.date, r.time),
+    address: r.venue,
+    price: PLACEHOLDER_PRICE,
+  }));
 ---
 <V6Layout
   home
   title="Tome Forró Berlin — Weekly Forró Classes, Socials &amp; Events"
   description="Forró every Wednesday at Atopia Kaffeehaus, plus every class and social across Berlin. All levels welcome, no partner needed."
 >
-  <TopBar />
+  <TopBar announcements={tickerItems} />
 
   <div class="grid">
-    <NextEventTile event={nextEvent} />
+    <NextEventTile event={nextEvent} posterAspect={posterAspect} />
+
+    <CalendarTile rows={calendarRows} href={`${base}/calendar`} />
 
     <Tile
       id="atopia"
-      title="Atopia"
+      title="Atopia Wednesdays"
       intro={`Our weekly night, every Wednesday at ${ATOPIA.venue}. Crash course at ${ATOPIA.classStart}, dancing until midnight.`}
       href={`${base}/atopia`}
       img={`${base}/images/v6/atopia.webp`}
     />
 
-    <CalendarTile
-      rows={upNext}
-      href={`${base}/calendar`}
-      img={`${base}/images/v6/calendar.webp`}
-    />
-
-    <Tile
-      id="our-events"
-      title="Our Events"
-      intro="Parties, workshops, and concerts organised by Tome Forró Berlin e.V."
-      href={`${base}/our-events`}
-      img={`${base}/images/v6/our-events.webp`}
-    />
-
     <Tile
       id="about"
-      title="What is Forró?"
-      intro="A partner dance from northeastern Brazil, danced to accordion, zabumba drum, and triangle."
+      title="About Us"
+      intro="A nonprofit forró community in Berlin, run by the people who show up for it."
       href={`${base}/about`}
-      img={`${base}/images/v6/about.webp`}
+      img={`${base}/images/v6/our-events.webp`}
     />
 
     <Tile

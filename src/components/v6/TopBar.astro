@@ -1,11 +1,43 @@
 ---
 // Homepage top bar: name left, logo right. No links — the cards navigate.
+// The announcements ticker sits between them when there's something active
+// (see .topbar__ticker in v6.css) — it's inert, not a link: clicking it does
+// nothing yet, this is just a preview of the News page's content.
+interface Props {
+  announcements?: string[];
+}
+const { announcements = [] } = Astro.props;
+const joined = announcements.join('  ·  ');
+
+// Repeat the text so there's always off-screen content to flow in from,
+// letting the viewport stay full-width instead of being capped narrow to
+// manufacture that buffer. The track is two of these halves and slides by
+// exactly one, so a seam only stays hidden while ONE half is at least as
+// wide as the visible window — hence a target generous enough to cover an
+// ultrawide monitor (~600 chars ≈ 4200px here), not just this laptop.
+const repeats = Math.max(2, Math.ceil(600 / (joined.length || 1)));
+const tickerText = Array(repeats).fill(joined).join('   ·   ');
+
 const base = import.meta.env.BASE_URL;
 ---
 <header class="topbar">
   {/* This is the homepage's only h1. The cards are all h2s, so without it
       the most important page in the site had no top-level heading at all. */}
   <h1 class="topbar__name">Tome Forró Berlin</h1>
+
+  {announcements.length > 0 && (
+    /* aria-label carries the real (unrepeated) announcement text for
+       assistive tech; both spans below are now purely decorative — each
+       repeats the text several times over just to fill the scrolling
+       track, and reading that aloud would mean hearing every announcement
+       repeated back to back for no reason. */
+    <div class="topbar__ticker" aria-label={joined}>
+      <div class="topbar__ticker-track" aria-hidden="true">
+        <span class="topbar__ticker-item">{tickerText}</span>
+        <span class="topbar__ticker-item">{tickerText}</span>
+      </div>
+    </div>
+  )}
 
   {/* Explicit dimensions reserve the box before load, so the bar doesn't
       shift when the logo arrives (CLS is a Core Web Vital). */}
