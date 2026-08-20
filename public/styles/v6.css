@@ -194,9 +194,14 @@ body.v6--ink {
   animation: topbar-ticker 88s linear infinite;
 }
 
-.topbar__ticker:hover .topbar__ticker-track,
-.topbar__ticker:focus-within .topbar__ticker-track {
-  animation-play-state: paused;
+/* Same gate as the calendar's pause below, and for the same reason: a stuck
+   :hover on a phone would freeze the ticker permanently with no way to
+   release it. Reported against the calendar; identical defect here. */
+@media (hover: hover) and (pointer: fine) {
+  .topbar__ticker:hover .topbar__ticker-track,
+  .topbar__ticker:focus-within .topbar__ticker-track {
+    animation-play-state: paused;
+  }
 }
 
 /* Spacing lives on the item as its own trailing margin, NOT as a `gap` on
@@ -602,9 +607,15 @@ body.v6--home .foot { flex: none; }
   animation: cal-table-scroll var(--cal-rotate-duration, 14s) linear infinite;
 }
 
-.tile--calendar:hover .cal-table--rotating,
-.tile--calendar:focus-visible .cal-table--rotating {
-  animation-play-state: paused;
+/* Pause-to-read, but ONLY where a real pointer exists. Ungated, this broke
+   the carousel on touch: phones apply :hover on tap and leave it stuck until
+   you touch something else, so swiping across this card paused the rotation
+   and it stayed paused. A touch device has no way to un-hover. */
+@media (hover: hover) and (pointer: fine) {
+  .tile--calendar:hover .cal-table--rotating,
+  .tile--calendar:focus-visible .cal-table--rotating {
+    animation-play-state: paused;
+  }
 }
 
 @keyframes cal-table-scroll {
