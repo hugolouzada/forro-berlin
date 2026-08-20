@@ -268,22 +268,33 @@ body.v6--ink {
 .tile--external-links  { grid-column: 2; grid-row: 3; }
 .tile--volunteer       { grid-column: 3; grid-row: 3; }
 
-/* Desktop: the page is exactly one viewport, never more. The body is a
-   flex column pinned to 100dvh and the grid takes whatever is left after
-   the footer — so the cards shrink to fit rather than the page growing a
-   scrollbar. Replaces a hand-computed `calc(100dvh - footer)` plus a
-   460px floor, either of which could overflow if the footer wrapped or
-   the viewport was short. */
-@media (min-width: 901px) {
-  body.v6--home {
-    height: 100dvh;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-  body.v6--home .grid { flex: 1; min-height: 0; }
-  body.v6--home .foot { flex: none; }
+/* The two .slide wrappers exist only to pair cards onto one mobile slide.
+   display:contents removes the wrapper box entirely, so the tiles inside
+   stay direct children of .grid and the placement rules above apply to
+   them unchanged — the wrappers are invisible to this layout. */
+.slide { display: contents; }
+
+/* Carousel affordance, mobile only. */
+.dots { display: none; }
+
+/* The homepage is exactly one viewport, never more — at EVERY width. The
+   body is a flex column pinned to 100dvh and the grid takes whatever is
+   left after the top bar, dots and footer, so cards shrink to fit rather
+   than the page growing a scrollbar.
+
+   This used to be desktop-only; mobile scrolled vertically through a
+   stack. Lifting it out of that media query is what makes the mobile
+   carousel possible: with the page height fixed, "swipe sideways" becomes
+   the only navigation instead of competing with a vertical scroll.
+   Homepage-only — inner pages use .panel and scroll normally. */
+body.v6--home {
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
+body.v6--home .grid { flex: 1; min-height: 0; }
+body.v6--home .foot { flex: none; }
 
 /* ── Tile ──────────────────────────────────────────────────────
    One card format across the whole grid. Photo at full opacity fills
@@ -1175,31 +1186,104 @@ body.v6--ink {
 
 /* ── Mobile ────────────────────────────────────────────────── */
 
+/* Mobile is its own design, not a squeezed desktop: five slides swiped
+   sideways like a multi-photo Instagram post, inside a page locked to one
+   viewport. Seven cards of very different appetite — a full poster, a data
+   table, five photo cards — never stacked into a workable vertical scroll.
+
+   Slide order comes from DOM order in index.astro (desktop places tiles by
+   class, so it is indifferent):
+     1 Special event · 2 Atopia · 3 Calendar · 4 About+FAQ · 5 Links+Volunteer */
+
 @media (max-width: 900px) {
   .grid {
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: auto;
-  }
-  /* Wildcard, not a list of class names: a ninth card added later drops
-     into the stack without anyone remembering to edit this block. */
-  .grid > * { grid-column: auto; grid-row: auto; }
-  .tile { min-height: 26dvh; }
-
-  /* Special Event's poster needs real height, not the shallow landscape
-     floor every other card gets — full width instead of half. Height comes
-     from the poster itself rather than a fixed card ratio: --poster-ar is
-     the image's true shape, measured at build time, so a 4:5 poster and a
-     9:16 story each fit edge to edge with no letterboxing here. (A fixed
-     3:4 card was cropping ~6% off a 4:5 poster.) */
-  .tile--next:not(.is-empty) {
-    grid-column: 1 / -1;
-    min-height: 0;
+    display: flex;
+    grid-template-columns: none;
+    grid-template-rows: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
   }
 
+  .grid::-webkit-scrollbar { display: none; }
+
+  /* One slide per swipe. min-width:0 lets a slide shrink to the flex basis
+     instead of being propped open by its content's min-content width. */
+  .grid > * {
+    flex: 0 0 100%;
+    min-width: 0;
+    scroll-snap-align: center;
+  }
+
+  /* Pair slides: two cards sharing the height evenly. On desktop this
+     element is display:contents and none of this applies. */
+  .slide {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+  }
+
+  .slide > .tile { flex: 1; min-height: 0; }
+
+  /* No hover on touch, so the entire hover apparatus is dead weight: the
+     accent cover that slides up, the cue arrow, and the blurb. Removing
+     them also stops the blurb (which is open-by-default on touch) from
+     eating height the cards need. */
+  .tile__cover,
+  .tile__cue,
+  .tile__reveal { display: none; }
+
+  .tile { transition: none; }
+
+  /* The one card that keeps its reveal: it holds the day and the
+     time · venue · price line, which this slide exists to show. */
+  .tile--next .tile__reveal { display: block; }
+
+  /* Claim the space left after the banner and shrink only when forced —
+     never crop. On any current phone (390x844 and up) a 4:5 poster still
+     renders at full slide width; on a 375x667 or 320x568 it scales down
+     rather than overflow. The previous fixed `aspect-ratio: var(--poster-ar)`
+     could not do that: in a fixed-height slide it would overflow instead. */
   .tile--next .tile__poster {
-    flex: none;
-    aspect-ratio: var(--poster-ar, 4 / 5);
+    flex: 1;
+    min-height: 0;
+    aspect-ratio: auto;
   }
+
+  /* Dots: the only signal that slides 2-5 exist. */
+  .dots {
+    flex: none;
+    display: flex;
+    justify-content: center;
+    gap: 0.45rem;
+    padding-block: 0.5rem;
+  }
+
+  .dots__dot {
+    width: 7px;
+    height: 7px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--dust);
+    cursor: pointer;
+  }
+
+  .dots__dot[aria-current='true'] { background: var(--ember); }
+
+  /* Every pixel here comes out of the slides, so the footer keeps only the
+     two links. The name/year line is dropped — not legally required, while
+     the Imprint link (which stays) is what satisfies the reachability duty
+     under § 5 TMG. */
+  .foot {
+    height: auto;
+    padding-block: 0.5rem;
+    justify-content: flex-end;
+  }
+
+  .foot > span { display: none; }
 
   /* Ticker moves to its own row below name+logo instead of sitting inline
      between them — there isn't room for a third inline zone once the name
@@ -1207,11 +1291,62 @@ body.v6--ink {
   .topbar { height: auto; padding-block: 0.6rem; }
   .topbar__logo { order: 2; }
   .topbar__ticker { order: 3; flex-basis: 100%; }
+
+  /* ── Calendar slide ──────────────────────────────────────────
+     Too narrow for four columns, so each entry becomes two lines:
+       Forró da Sexta — live trio, then DJ se…      <- name
+       Loophole, Boddinstraße 60        Fri 21 Aug  <- address · date
+     The list is scrolled by hand here; the desktop auto-rotation is off,
+     which means the duplicate second copy of the rows that CalendarTile
+     renders for that loop has to go, or every event would appear twice. */
+
+  .cal-table--rotating { animation: none; }
+  .cal-table__row[aria-hidden] { display: none; }
+
+  /* The list scrolls vertically, but it must NOT swallow sideways swipes —
+     it fills most of the slide, so if it captured horizontal pans there
+     would be almost nowhere left to grab to change slides.
+
+     Two things are needed. `overflow-x: hidden` because setting only
+     overflow-y makes the other axis compute to `auto` rather than staying
+     visible, which quietly made this a two-axis scroller. And
+     `touch-action: pan-y`, which tells the browser this element handles
+     vertical panning only, so horizontal gestures pass through to the
+     carousel. overscroll-behavior is scoped to the y axis for the same
+     reason — containing both axes would block the handover. */
+  .tile--calendar .tile__tablewrap {
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior-y: contain;
+    touch-action: pan-y;
+  }
+
+  .cal-table__row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline;
+    row-gap: 0.1rem;
+    padding-block: 0.4rem;
+  }
+
+  /* Placement is explicit, not left to auto-flow. The DOM order is
+     name → date → address, so auto-placement puts the DATE in the flexible
+     first track and the ADDRESS in the auto track — backwards (the layout
+     wants location left, date right), and worse: an address in an `auto`
+     track sizes to its content instead of eliding, so long venue strings
+     ran straight over the date. */
+  .cal-table__name    { grid-column: 1 / -1; grid-row: 1; }
+  .cal-table__address { grid-column: 1;      grid-row: 2; }
+  .cal-table__date    { grid-column: 2;      grid-row: 2; text-align: right; }
+
+  /* Price has no room in a two-line entry, and the layout names only
+     event, location and date. */
+  .cal-table__price { display: none; }
 }
 
+/* Inner pages only. The homepage's own narrow-width behaviour is entirely
+   handled by the carousel block above — the grid and tile rules that used
+   to live here would now fight it. */
 @media (max-width: 600px) {
-  .grid { grid-template-columns: 1fr; }
-  .tile { min-height: 22dvh; }
   /* Collapse the three columns to one; rows stay subgrid so they still
      inherit a single shared column definition. */
   .evt-list { grid-template-columns: 1fr; }
@@ -1219,7 +1354,6 @@ body.v6--ink {
   .evt__when { display: block; }
   .evt__tags { justify-content: flex-start; }
   .factlist__row { grid-template-columns: 1fr; gap: 0.15rem; }
-  .foot { height: auto; padding-block: 1rem; }
 }
 
 /* ── View transitions ──────────────────────────────────────── */

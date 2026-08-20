@@ -89,10 +89,13 @@ const calendarRows = rows
 >
   <TopBar announcements={tickerItems} />
 
+  {/* DOM order is the MOBILE slide order. Desktop ignores it entirely — every
+      tile is placed explicitly by class in the .grid rules — so this order is
+      free to serve the carousel. The two .slide wrappers pair cards onto one
+      slide each; on desktop they are display:contents and disappear, leaving
+      their tiles as direct grid items. */}
   <div class="grid">
     <NextEventTile event={nextEvent} posterAspect={posterAspect} />
-
-    <CalendarTile rows={calendarRows} href={`${base}/calendar`} />
 
     <Tile
       id="atopia"
@@ -102,38 +105,90 @@ const calendarRows = rows
       img={`${base}/images/v6/atopia.webp`}
     />
 
-    <Tile
-      id="about"
-      title="About Us"
-      intro="A nonprofit forró community in Berlin, run by the people who show up for it."
-      href={`${base}/about`}
-      img={`${base}/images/v6/our-events.webp`}
-    />
+    <CalendarTile rows={calendarRows} href={`${base}/calendar`} />
 
-    <Tile
-      id="faq"
-      title="FAQ &amp; Conduct"
-      intro="No partner needed. No experience required. Everything you need to know before your first night."
-      href={`${base}/faq`}
-      img={`${base}/images/v6/faq.webp`}
-    />
+    <div class="slide">
+      <Tile
+        id="about"
+        title="About Us"
+        intro="A nonprofit forró community in Berlin, run by the people who show up for it."
+        href={`${base}/about`}
+        img={`${base}/images/v6/our-events.webp`}
+      />
 
-    <Tile
-      id="external-links"
-      title="External Links"
-      intro="Festival calendars, partner organizers, and other forró resources worth knowing about."
-      href={`${base}/external-links`}
-      img={`${base}/images/v6/external-links.webp`}
-    />
+      <Tile
+        id="faq"
+        title="FAQ &amp; Conduct"
+        intro="No partner needed. No experience required. Everything you need to know before your first night."
+        href={`${base}/faq`}
+        img={`${base}/images/v6/faq.webp`}
+      />
+    </div>
 
-    <Tile
-      id="volunteer"
-      title="Volunteer for us"
-      intro="Take a shift, welcome newcomers, keep the scene running. There is something in it for you too."
-      href={`${base}/volunteer`}
-      img={`${base}/images/v6/volunteer.webp`}
-    />
+    <div class="slide">
+      <Tile
+        id="external-links"
+        title="External Links"
+        intro="Festival calendars, partner organizers, and other forró resources worth knowing about."
+        href={`${base}/external-links`}
+        img={`${base}/images/v6/external-links.webp`}
+      />
+
+      <Tile
+        id="volunteer"
+        title="Volunteer for us"
+        intro="Take a shift, welcome newcomers, keep the scene running. There is something in it for you too."
+        href={`${base}/volunteer`}
+        img={`${base}/images/v6/volunteer.webp`}
+      />
+    </div>
   </div>
+
+  {/* Mobile-only affordance: without it nothing signals that slides 2-5 exist.
+      Hidden on desktop, where all seven cards are visible at once. */}
+  <nav class="dots" aria-label="Cards">
+    {[1, 2, 3, 4, 5].map(i => (
+      <button class="dots__dot" type="button" data-slide={i - 1} aria-label={`Card ${i} of 5`}></button>
+    ))}
+  </nav>
 
   <SiteFooter />
 </V6Layout>
+
+<script>
+  // Keeps the dots in step with the carousel. CSS can't report scroll
+  // position portably, so this is the one piece that needs JS — and it only
+  // does anything while the carousel exists (mobile); on desktop the dots
+  // are display:none and the observer simply never marks anything.
+  document.addEventListener('astro:page-load', () => {
+    const grid = document.querySelector<HTMLElement>('.grid');
+    const dots = [...document.querySelectorAll<HTMLButtonElement>('.dots__dot')];
+    if (!grid || !dots.length) return;
+
+    const slides = [...grid.children] as HTMLElement[];
+
+    const mark = (i: number) =>
+      dots.forEach((d, n) => d.setAttribute('aria-current', n === i ? 'true' : 'false'));
+    mark(0);
+
+    const io = new IntersectionObserver(
+      entries => {
+        for (const e of entries) {
+          if (e.isIntersecting) mark(slides.indexOf(e.target as HTMLElement));
+        }
+      },
+      // Only fire once a slide is the one actually settled in view.
+      { root: grid, threshold: 0.6 }
+    );
+    slides.forEach(s => io.observe(s));
+
+    dots.forEach(d =>
+      d.addEventListener('click', () => {
+        const i = Number(d.dataset.slide);
+        slides[i]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+      })
+    );
+
+    document.addEventListener('astro:before-swap', () => io.disconnect(), { once: true });
+  });
+</script>
