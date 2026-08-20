@@ -577,8 +577,13 @@ body.v6--home .foot { flex: none; }
   padding: 0.3rem 0.6rem;
 }
 
+/* Solid ember, matching the accent every other card's banner carries. Flat
+   rather than the 30% gradient the photo cards use: there is no photo behind
+   this one for the transparency to reveal. White on --ember is 4.56:1, the
+   site's documented baseline for banner text — it clears AA, but only just,
+   so this banner should not gain any opacity. */
 .tile--calendar .tile__body {
-  background: var(--ink);
+  background: var(--ember);
 }
 
 .tile--calendar .tile__title {
@@ -654,10 +659,16 @@ body.v6--home .foot { flex: none; }
 .cal-table__row:last-child { border-bottom: 0; }
 
 /* Eight new tab stops, so they have to be visible when focused. Inset so the
-   ring is not clipped by the wrapper's overflow: hidden. */
-.cal-table__row:focus-visible,
-.tile--calendar .tile__body:focus-visible {
+   ring is not clipped by the wrapper's overflow: hidden. Rows sit on --dust
+   so they take the accent; the banner is itself ember now, where an ember
+   ring would be invisible, so that one goes white. */
+.cal-table__row:focus-visible {
   outline: 2px solid var(--ember);
+  outline-offset: -2px;
+}
+
+.tile--calendar .tile__body:focus-visible {
+  outline: 2px solid var(--paper);
   outline-offset: -2px;
 }
 
